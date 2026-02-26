@@ -649,52 +649,58 @@
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
-  <div class="logo">
-    <div class="logo-icon">&#128236;</div>
-    <h1>InvoiceBox</h1>
-    <p>&#1505;&#1493;&#1512;&#1511; &#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514; &#1495;&#1499;&#1501; &#1500;&#1490;'&#1497;&#1502;&#1497;&#1497;&#1500; &#1513;&#1500;&#1498;</p>
-  </div>
-
-  <div class="auth-card">
-    <h2>&#128273; &#1495;&#1497;&#1489;&#1493;&#1512; &#1500;&#1490;&#1493;&#1490;&#1500;</h2>
-    <p>&#1492;&#1494;&#1503; &#1488;&#1514; &#1492;-Client ID &#1513;&#1500;&#1498; &#1502;-Google Cloud Console &#1499;&#1491;&#1497; &#1500;&#1495;&#1489;&#1512; &#1488;&#1514; &#1492;&#1490;'&#1497;&#1502;&#1497;&#1497;&#1500; &#1513;&#1500;&#1498; &#1493;&#1500;&#1505;&#1512;&#1493;&#1511; &#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514; &#1488;&#1493;&#1496;&#1493;&#1502;&#1496;&#1497;&#1514;.</p>
-
-    <div class="setup-field">
-      <label>Google OAuth Client ID</label>
-      <input type="text" id="client-id-input" placeholder="XXXXXXXXXX-xxxx.apps.googleusercontent.com" />
-      <small>&#1514;&#1502;&#1510;&#1488; &#1488;&#1514; &#1494;&#1492; &#1489;: console.cloud.google.com &#8594; Credentials &#8594; OAuth 2.0 Client IDs</small>
+  <div style="position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;padding:40px 20px;">
+    
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:40px">
+      <div style="width:90px;height:90px;border-radius:24px;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:inline-flex;align-items:center;justify-content:center;font-size:42px;margin-bottom:16px;box-shadow:0 0 60px rgba(0,212,255,0.4)">&#128236;</div>
+      <h1 style="font-size:42px;font-weight:900;background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-2px">InvoiceBox</h1>
+      <p style="color:#64748b;font-size:16px;margin-top:8px">&#1505;&#1493;&#1512;&#1511; &#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514; &#1495;&#1499;&#1501; &#1500;&#1490;&#1523;&#1497;&#1502;&#1497;&#1497;&#1500; &#1513;&#1500;&#1498;</p>
     </div>
 
-    <div class="setup-field">
-      <label>&#1496;&#1493;&#1493;&#1495; &#1505;&#1512;&#1497;&#1511;&#1492; (&#1495;&#1493;&#1491;&#1513;&#1497;&#1501; &#1488;&#1495;&#1493;&#1512;&#1492;)</label>
-      <input type="number" id="months-back" value="24" min="1" max="120" />
-      <small>&#1499;&#1502;&#1492; &#1495;&#1493;&#1491;&#1513;&#1497;&#1501; &#1488;&#1495;&#1493;&#1512;&#1492; &#1500;&#1505;&#1512;&#1493;&#1511;? (&#1489;&#1512;&#1497;&#1512;&#1514; &#1502;&#1495;&#1491;&#1500;: 24 &#1495;&#1493;&#1491;&#1513;&#1497;&#1501;)</small>
+    <!-- Main Card -->
+    <div style="background:#141d2e;border:1px solid #1e2d45;border-radius:28px;padding:44px 40px;max-width:440px;width:100%;text-align:center;box-shadow:0 20px 80px rgba(0,0,0,0.5)">
+      
+      <div style="font-size:15px;color:#94a3b8;line-height:1.7;margin-bottom:32px">
+        &#1502;&#1514;&#1495;&#1489;&#1512; &#1500;&#1490;&#1523;&#1497;&#1502;&#1497;&#1497;&#1500; &#1513;&#1500;&#1498;, &#1505;&#1493;&#1512;&#1511; &#1488;&#1514; &#1499;&#1500; &#1492;&#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514;<br>&#1493;&#1502;&#1510;&#1497;&#1490; &#1491;&#1513;&#1489;&#1493;&#1512;&#1491; &#1502;&#1500;&#1488; &#1506;&#1501; &#1490;&#1512;&#1508;&#1497;&#1501; &#1493;&#1504;&#1514;&#1493;&#1504;&#1497;&#1501;
+      </div>
+
+      <!-- Features -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:32px;text-align:right">
+        <div style="background:#1a2235;border-radius:12px;padding:12px 14px;font-size:13px;color:#94a3b8">&#128202; &#1490;&#1512;&#1508;&#1497;&#1501; &#1495;&#1493;&#1491;&#1513;&#1497;&#1497;&#1501;</div>
+        <div style="background:#1a2235;border-radius:12px;padding:12px 14px;font-size:13px;color:#94a3b8">&#127991;&#65039; &#1511;&#1496;&#1490;&#1493;&#1512;&#1497;&#1493;&#1514; &#1488;&#1493;&#1496;&#1493;&#1523;</div>
+        <div style="background:#1a2235;border-radius:12px;padding:12px 14px;font-size:13px;color:#94a3b8">&#128269; &#1505;&#1497;&#1504;&#1493;&#1503; &#1493;&#1495;&#1497;&#1508;&#1493;&#1513;</div>
+        <div style="background:#1a2235;border-radius:12px;padding:12px 14px;font-size:13px;color:#94a3b8">&#128229; &#1497;&#1497;&#1510;&#1493;&#1488; CSV</div>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <button onclick="startAuth()" style="width:100%;padding:16px 24px;background:white;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;font-size:16px;font-weight:700;color:#1a1a1a;font-family:Rubik,sans-serif;box-shadow:0 4px 20px rgba(255,255,255,0.15);transition:all 0.2s;margin-bottom:16px"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 30px rgba(255,255,255,0.25)'"
+        onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 20px rgba(255,255,255,0.15)'">
+        <svg width="22" height="22" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        &#1492;&#1514;&#1495;&#1489;&#1512; &#1506;&#1501; Google
+      </button>
+
+      <div style="color:#475569;font-size:12px;margin-bottom:24px">
+        &#1511;&#1493;&#1512;&#1488; &#1502;&#1497;&#1497;&#1500;&#1497;&#1501; &#1489;&#1500;&#1489;&#1491; &#8212; &#1500;&#1488; &#1499;&#1493;&#1514;&#1489;, &#1500;&#1488; &#1502;&#1493;&#1495;&#1511;, &#1500;&#1488; &#1513;&#1493;&#1500;&#1495;
+      </div>
+
+      <div style="border-top:1px solid #1e2d45;padding-top:20px">
+        <button onclick="loadDemo()" style="width:100%;padding:14px;background:transparent;border:1px solid #1e2d45;border-radius:12px;color:#64748b;font-family:Rubik,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s"
+          onmouseover="this.style.borderColor='#10b981';this.style.color='#10b981'"
+          onmouseout="this.style.borderColor='#1e2d45';this.style.color='#64748b'">
+          &#128065;&#65039; &#1492;&#1510;&#1490; &#1491;&#1502;&#1493; &#1489;&#1500;&#1497; &#1492;&#1514;&#1495;&#1489;&#1512;&#1493;&#1514;
+        </button>
+      </div>
     </div>
 
-    <button class="btn-primary" onclick="startAuth()">
-      &#128640; &#1492;&#1514;&#1495;&#1489;&#1512; &#1493;&#1505;&#1512;&#1493;&#1511; &#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514;
-    </button>
-
-    <span class="how-link" onclick="toggleHow()">&#10067; &#1488;&#1497;&#1498; &#1502;&#1511;&#1489;&#1500;&#1497;&#1501; Client ID?</span>
-    <div class="how-box" id="how-box">
-      <ol>
-        <li>&#1492;&#1497;&#1499;&#1504;&#1505; &#1500;-<a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> &#1493;&#1510;&#1493;&#1512; &#1508;&#1512;&#1493;&#1497;&#1511;&#1496; &#1495;&#1491;&#1513;</li>
-        <li>&#1500;&#1498; &#1500;-"APIs & Services" &#8594; "Enable APIs" &#8594; &#1492;&#1508;&#1506;&#1500; &#1488;&#1514; <strong>Gmail API</strong></li>
-        <li>&#1500;&#1498; &#1500;-"Credentials" &#8594; "Create Credentials" &#8594; "OAuth 2.0 Client ID"</li>
-        <li>&#1489;&#1495;&#1512; "Web Application" &#1493;&#1492;&#1493;&#1505;&#1507; Authorized JS Origins: <code>file://</code> &#1493;-<code>http://localhost</code></li>
-        <li>&#1492;&#1506;&#1514;&#1511; &#1488;&#1514; &#1492;-Client ID &#1493;&#1492;&#1491;&#1489;&#1511; &#1500;&#1502;&#1506;&#1500;&#1492;</li>
-        <li>&#1500;&#1498; &#1500;-"OAuth Consent Screen" &#8594; &#1492;&#1493;&#1505;&#1507; &#1488;&#1514; &#1492;&#1490;'&#1497;&#1502;&#1497;&#1497;&#1500; &#1513;&#1500;&#1498; &#1499;-Test User</li>
-      </ol>
-    </div>
-  </div>
-
-  <!-- DEMO MODE -->
-  <div class="auth-card" style="max-width:480px">
-    <h2>&#127918; &#1502;&#1510;&#1489; &#1491;&#1502;&#1493;</h2>
-    <p>&#1512;&#1493;&#1510;&#1492; &#1500;&#1512;&#1488;&#1493;&#1514; &#1488;&#1497;&#1498; &#1494;&#1492; &#1504;&#1512;&#1488;&#1492; &#1489;&#1500;&#1497; &#1500;&#1492;&#1514;&#1495;&#1489;&#1512;? &#1500;&#1495;&#1509; &#1499;&#1488;&#1503; &#1500;&#1491;&#1502;&#1493; &#1506;&#1501; &#1504;&#1514;&#1493;&#1504;&#1497;&#1501; &#1502;&#1491;&#1493;&#1502;&#1497;&#1501;.</p>
-    <button class="btn-primary" style="background: linear-gradient(135deg, var(--accent3), #059669);" onclick="loadDemo()">
-      &#128065;&#65039; &#1492;&#1510;&#1490; &#1491;&#1502;&#1493;
-    </button>
+    <!-- months input hidden -->
+    <input type="number" id="months-back" value="24" style="display:none">
   </div>
 </div>
 
@@ -810,6 +816,7 @@
 // ========================
 // CONFIG
 // ========================
+const CLIENT_ID_DEFAULT = '346127649716-mmtqoqa39p3pdm8k8ksp4k7phtp98a71.apps.googleusercontent.com';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
 const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest';
 
@@ -885,13 +892,8 @@ function loadGIS() {
   });
 }
 
-async function startAuth() {
-  const clientId = document.getElementById('client-id-input').value.trim();
-  if (!clientId) {
-    showToast('error', '\u274c \u05d4\u05d6\u05df Client ID \u05ea\u05d7\u05d9\u05dc\u05d4');
-    return;
-  }
-
+async function startAuth(clientId) {
+  clientId = clientId || CLIENT_ID_DEFAULT;
   showScreen('loading');
   setStatus('\u05d8\u05d5\u05e2\u05df Google API...');
 
