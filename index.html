@@ -1,358 +1,1320 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>InvoiceBox Global Parser</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #09090b;
-            --surface: rgba(24, 24, 27, 0.7);
-            --surface-hover: rgba(39, 39, 42, 0.8);
-            --border: rgba(63, 63, 70, 0.4);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --primary: #f59e0b; /* שיניתי לכתום/זהב יוקרתי */
-            --primary-glow: rgba(245, 158, 11, 0.5);
-            --secondary: #ec4899;
-            --success: #10b981;
-            --font-sans: 'Rubik', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --radius: 16px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InvoiceBox Pro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060b16;--s1:#0c1525;--s2:#111d30;--s3:#162035;
+  --b1:#1a2d47;--b2:#22385a;
+  --c1:#00e5ff;--c2:#7c3aed;--c3:#00ffa3;--c4:#ff6b35;--c5:#ffd93d;--c6:#ff4d6d;
+  --t1:#e8f0fe;--t2:#8ba3c7;--t3:#4a6080;
+  --font:'Heebo',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:14px;--sh:0 8px 32px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { font-family: var(--font-sans); background-color: var(--bg); color: var(--text-main); min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+/* BG */
+.bgrid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,229,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.018) 1px,transparent 1px);
+  background-size:52px 52px}
+.borb{position:fixed;border-radius:50%;filter:blur(110px);pointer-events:none;z-index:0}
+.o1{width:800px;height:800px;top:-300px;right:-200px;background:radial-gradient(circle,rgba(0,229,255,.06),transparent 70%)}
+.o2{width:700px;height:700px;bottom:-250px;left:-150px;background:radial-gradient(circle,rgba(124,58,237,.07),transparent 70%)}
+.o3{width:500px;height:500px;top:45%;left:35%;background:radial-gradient(circle,rgba(0,255,163,.03),transparent 70%)}
 
-        .ambient-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(circle at 15% 50%, rgba(245, 158, 11, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.08), transparent 25%); }
-        .grid-overlay { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0.15; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 30px 30px; }
+/* ---- AUTH ---- */
+#auth{position:relative;z-index:10;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.awrap{width:100%;max-width:460px;display:flex;flex-direction:column;align-items:center;gap:28px}
+.alogo{text-align:center;animation:fadeDown .7s ease both}
+.aicon{width:88px;height:88px;border-radius:24px;background:linear-gradient(135deg,var(--c1),var(--c2));
+  display:inline-flex;align-items:center;justify-content:center;font-size:42px;margin-bottom:16px;
+  box-shadow:0 0 60px rgba(0,229,255,.3),0 20px 40px rgba(0,0,0,.5)}
+.alogo h1{font-size:42px;font-weight:900;letter-spacing:-2px;
+  background:linear-gradient(135deg,var(--c1),#a78bff,var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.alogo p{font-size:15px;color:var(--t2);margin-top:8px}
+.acard{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:24px;padding:36px 32px;
+  box-shadow:var(--sh),0 0 0 1px rgba(0,229,255,.04);animation:fadeUp .7s .15s ease both}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:28px}
+.fi{background:var(--s1);border:1px solid var(--b1);border-radius:11px;padding:11px 13px;
+  font-size:13px;color:var(--t2);font-weight:500;display:flex;align-items:center;gap:7px;transition:border-color .2s,color .2s}
+.fi:hover{border-color:var(--c1);color:var(--t1)}
+.gbtn{width:100%;background:white;border:none;border-radius:13px;padding:15px 22px;
+  display:flex;align-items:center;justify-content:center;gap:11px;
+  font-family:var(--font);font-size:16px;font-weight:700;color:#1a1a2e;cursor:pointer;
+  box-shadow:0 4px 20px rgba(255,255,255,.12);transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+.gbtn:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(255,255,255,.2)}
+.gbtn:active{transform:translateY(-1px)}
+.anote{font-size:12px;color:var(--t3);text-align:center;margin-top:14px;line-height:1.6}
+.divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--t3);font-size:13px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--b1)}
+.dbtn{width:100%;background:transparent;border:1px solid var(--b2);border-radius:11px;padding:13px;
+  font-family:var(--font);font-size:14px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .2s}
+.dbtn:hover{border-color:var(--c3);color:var(--c3)}
 
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        .glass-card { background: var(--surface); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); }
+/* ---- LOADING ---- */
+#loading{position:fixed;inset:0;z-index:1000;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}
+.lvisual{position:relative;width:96px;height:96px}
+.lring{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;animation:spin 1.2s linear infinite}
+.lring:nth-child(1){border-top-color:var(--c1)}
+.lring:nth-child(2){inset:12px;border-top-color:var(--c2);animation-duration:1.8s;animation-direction:reverse}
+.lring:nth-child(3){inset:24px;border-top-color:var(--c3);animation-duration:2.4s}
+.lcenter{position:absolute;inset:32px;border-radius:50%;
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 20px rgba(0,229,255,.4)}
+.lcenter svg{width:18px;height:18px;fill:white}
+#loading h2{font-size:21px;font-weight:700}
+#scan-status{color:var(--t2);font-family:var(--mono);font-size:12px;text-align:center;max-width:320px}
+.pwrap{width:300px;background:var(--s1);border:1px solid var(--b1);border-radius:8px;height:5px;overflow:hidden}
+.pbar{height:100%;background:linear-gradient(90deg,var(--c1),var(--c2));border-radius:8px;width:0%;transition:width .35s ease;position:relative}
+.pbar::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35));animation:shim 1s infinite}
+#scan-count{font-family:var(--mono);font-size:12px;color:var(--t3)}
+#ai-status{font-size:12px;color:var(--c1);font-family:var(--mono);min-height:18px}
 
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-family: var(--font-sans); font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; outline: none; }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 4px 15px var(--primary-glow); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px var(--primary-glow); filter: brightness(1.1); }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { background: var(--surface-hover); border-color: var(--primary); color: var(--primary); }
+/* ---- DASHBOARD ---- */
+#dash{position:relative;z-index:10;max-width:1440px;margin:0 auto;padding:22px 16px 60px}
 
-        #auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-box { padding: 40px; text-align: center; max-width: 420px; width: 100%; animation: slideUp 0.6s ease-out; }
-        .logo-icon { font-size: 48px; margin-bottom: 20px; display: inline-block; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 10px rgba(245,158,11,0.3)); }
+/* Header */
+.dhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:14px;animation:fadeDown .5s ease both}
+.dbrand{display:flex;align-items:center;gap:12px}
+.bicon{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,var(--c1),var(--c2));
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(0,229,255,.2)}
+.bicon svg{width:22px;height:22px;fill:white}
+.btxt h1{font-size:21px;font-weight:900;letter-spacing:-.5px}
+.btxt span{font-size:12px;color:var(--t2)}
+.hacts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 15px;border-radius:10px;
+  font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btng{background:var(--s2);border:1px solid var(--b1);color:var(--t2)}
+.btng:hover{border-color:var(--c1);color:var(--c1)}
+.btnp{background:linear-gradient(135deg,var(--c1),var(--c2));color:white}
+.btnp:hover{opacity:.88;transform:translateY(-1px)}
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .kpi-card { padding: 24px; position: relative; overflow: hidden; }
-        .kpi-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: var(--primary); border-radius: 0 8px 8px 0; }
-        .kpi-card:nth-child(2)::before { background: var(--secondary); }
-        .kpi-card:nth-child(3)::before { background: var(--success); }
-        .kpi-label { color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
-        .kpi-val { font-family: var(--font-mono); font-size: 32px; font-weight: 800; color: var(--text-main); }
+/* Stats */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:11px;margin-bottom:22px;animation:fadeUp .5s .05s ease both}
+.stile{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:18px;
+  position:relative;overflow:hidden;transition:transform .2s,border-color .2s;cursor:default}
+.stile::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
+.stile:hover{transform:translateY(-2px);border-color:var(--b2)}
+.s1::before{background:var(--c1)}.s2::before{background:var(--c2)}.s3::before{background:var(--c3)}
+.s4::before{background:var(--c4)}.s5::before{background:var(--c5)}.s6::before{background:var(--c6)}
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:6px}
+.sval{font-size:25px;font-weight:800;font-family:var(--mono);letter-spacing:-1px;line-height:1}
+.s1 .sval{color:var(--c1)}.s2 .sval{color:var(--c2)}.s3 .sval{color:var(--c3)}
+.s4 .sval{color:var(--c4)}.s5 .sval{color:var(--c5)}.s6 .sval{color:var(--c6)}
+.ssub{font-size:11px;color:var(--t3);margin-top:4px}
+.strend{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;margin-top:5px}
+.tup{background:rgba(255,77,109,.12);color:var(--c6)}.tdn{background:rgba(0,255,163,.12);color:var(--c3)}
 
-        .charts-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
-        @media (max-width: 900px) { .charts-layout { grid-template-columns: 1fr; } }
-        .chart-box { padding: 20px; }
-        .chart-header { font-size: 16px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+/* Month strip */
+.mnav{margin-bottom:20px;animation:fadeIn .5s .2s ease both}
+.mscroll{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+.mscroll::-webkit-scrollbar{display:none}
+.mchip{flex-shrink:0;padding:9px 14px;border-radius:11px;border:1px solid var(--b1);background:var(--s2);
+  cursor:pointer;transition:all .2s;text-align:center;min-width:85px}
+.mchip:hover{border-color:var(--b2)}
+.mchip.active{border-color:var(--c1);background:rgba(0,229,255,.07)}
+.mchip .ml{font-size:11px;font-weight:700;color:var(--t1);display:block}
+.mchip .ma{font-size:10px;font-family:var(--mono);color:var(--t3);display:block;margin-top:1px}
+.mchip.active .ml{color:var(--c1)}.mchip.active .ma{color:rgba(0,229,255,.6)}
 
-        .table-container { overflow-x: auto; padding: 1px; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th, td { padding: 16px; text-align: right; border-bottom: 1px solid var(--border); }
-        th { color: var(--text-muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(0,0,0,0.2); }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: var(--surface-hover); }
-        .cell-vendor { font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .vendor-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(255,255,255,0.05); }
-        .cell-amount { font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--primary); }
-        .cell-date { color: var(--text-muted); font-size: 13px; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.05); color: var(--text-muted); }
+/* Charts */
+.crow1{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:14px;animation:fadeUp .5s .25s ease both}
+.crow2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;animation:fadeUp .5s .3s ease both}
+@media(max-width:1100px){.crow1{grid-template-columns:1fr 1fr}.crow1 .cc:first-child{grid-column:1/-1}}
+@media(max-width:700px){.crow1,.crow2{grid-template-columns:1fr}.crow1 .cc:first-child{grid-column:auto}}
+.cc{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:22px;position:relative;overflow:hidden}
+.cc::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at top right,rgba(0,229,255,.025),transparent 60%);pointer-events:none}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.ct{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+.cbadge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;font-family:var(--mono);background:rgba(0,229,255,.1);color:var(--c1)}
 
-        #loader { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .spinner { width: 60px; height: 60px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        .progress-container { width: 300px; height: 6px; background: var(--border); border-radius: 10px; margin-top: 20px; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.3s; }
+/* Vendor bars */
+.vlist{display:flex;flex-direction:column;gap:12px}
+.vi .vm{display:flex;justify-content:space-between;margin-bottom:5px}
+.vi .vn{font-size:12px;font-weight:600}.vi .va{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--c1)}
+.vtrack{height:5px;background:var(--s1);border-radius:4px;overflow:hidden}
+.vfill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(.34,1.2,.64,1)}
 
-        .hidden { display: none !important; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+/* Cat legend */
+.clegend{display:flex;flex-direction:column;gap:6px;margin-top:14px;overflow-y:auto;max-height:190px}
+.clegend::-webkit-scrollbar{width:3px}
+.clegend::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+.citem{display:flex;align-items:center;justify-content:space-between;padding:6px 9px;border-radius:8px;cursor:pointer;transition:background .15s}
+.citem:hover{background:var(--s1)}
+.cleft{display:flex;align-items:center;gap:7px}
+.cdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cn{font-size:12px;font-weight:600}
+.cright{display:flex;gap:10px}
+.cpct{font-family:var(--mono);font-size:11px;color:var(--t3)}
+.cval{font-family:var(--mono);font-size:11px;font-weight:700}
+
+/* Filters */
+.fpanel{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:14px 18px;
+  margin-bottom:14px;display:flex;gap:9px;flex-wrap:wrap;align-items:center;animation:fadeUp .5s .35s ease both}
+.flbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.fi2{background:var(--s1);border:1px solid var(--b1);border-radius:9px;padding:8px 12px;
+  color:var(--t1);font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none}
+.fi2:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(0,229,255,.1)}
+.fi2 option{background:var(--s2)}
+.sw{position:relative}
+.sw::after{content:'v';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--t3);pointer-events:none}
+.rcount{font-family:var(--mono);font-size:11px;color:var(--t3);white-space:nowrap;margin-right:auto}
+
+/* AI badge */
+.aibadge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;
+  font-size:10px;font-weight:700;background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(124,58,237,.15));
+  border:1px solid rgba(0,229,255,.2);color:var(--c1);white-space:nowrap}
+
+/* Table */
+.tcard{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;animation:fadeUp .5s .4s ease both}
+.thead2{padding:16px 22px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.tscroll{overflow-x:auto}
+.tscroll::-webkit-scrollbar{height:3px}
+.tscroll::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 14px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--t3);background:var(--s1);white-space:nowrap;cursor:pointer;
+  user-select:none;transition:color .15s}
+thead th:hover{color:var(--c1)}
+thead th.sorted{color:var(--c1)}
+tbody tr{border-bottom:1px solid var(--b1);transition:background .1s}
+tbody tr:hover{background:rgba(0,229,255,.02)}
+tbody tr:last-child{border-bottom:none}
+td{padding:12px 14px;font-size:13px;vertical-align:middle}
+.tsender{display:flex;align-items:center;gap:9px}
+.vavt{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sn{font-weight:600;font-size:13px}.se{font-size:10px;color:var(--t3);margin-top:1px}
+.subj{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--t2)}
+.amtc{font-family:var(--mono);font-weight:700;font-size:14px}
+.apos{color:var(--c3)}.anone{color:var(--t3);font-size:11px}
+.aisrc{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;
+  font-size:9px;font-weight:700;background:rgba(0,229,255,.1);color:var(--c1)}
+.cpill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.datec{color:var(--t2);font-family:var(--mono);font-size:11px}
+.obtn{padding:5px 11px;background:var(--s1);border:1px solid var(--b1);border-radius:7px;
+  color:var(--t2);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.obtn:hover{border-color:var(--c1);color:var(--c1)}
+
+/* Pagination */
+.pag{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;border-top:1px solid var(--b1);flex-wrap:wrap;gap:10px}
+.pinfo{font-size:12px;color:var(--t3);font-family:var(--mono)}
+.pbtns{display:flex;gap:5px}
+.pbtn{width:30px;height:30px;border-radius:7px;border:1px solid var(--b1);background:var(--s1);
+  color:var(--t2);font-size:12px;font-family:var(--mono);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pbtn:hover,.pbtn.active{border-color:var(--c1);color:var(--c1);background:rgba(0,229,255,.07)}
+
+/* Toast */
+.toasts{position:fixed;bottom:22px;left:22px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--s3);border:1px solid var(--b1);border-radius:11px;padding:13px 17px;
+  font-size:13px;display:flex;align-items:center;gap:9px;animation:slideIn .3s ease;max-width:320px;box-shadow:var(--sh);transition:opacity .3s}
+.toast.success{border-color:var(--c3)}.toast.error{border-color:var(--c6)}.toast.info{border-color:var(--c1)}
+
+/* Animations */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{transform:translateX(-14px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes shim{0%,100%{opacity:.4}50%{opacity:1}}
+
+.hidden{display:none!important}
+
+/* Confidence bar */
+.conf{display:flex;align-items:center;gap:5px}
+.confbar{flex:1;height:3px;background:var(--s1);border-radius:4px;overflow:hidden}
+.confill{height:100%;border-radius:4px;transition:width .5s}
+.confpct{font-size:10px;font-family:var(--mono);color:var(--t3);min-width:28px;text-align:left}
+</style>
 </head>
 <body>
+<div class="bgrid"></div>
+<div class="borb o1"></div>
+<div class="borb o2"></div>
+<div class="borb o3"></div>
 
-    <div class="ambient-bg"></div>
-    <div class="grid-overlay"></div>
-
-    <div id="loader" class="hidden">
-        <div class="spinner"></div>
-        <h2 style="font-size: 24px; margin-bottom: 10px;">מנוע הסריקה פועל...</h2>
-        <p id="loader-text" style="color: var(--text-muted);">מחלץ נתונים בעשרות שפות</p>
-        <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+<!-- AUTH -->
+<div id="auth">
+<div class="awrap">
+  <div class="alogo">
+    <div class="aicon">
+      <svg viewBox="0 0 24 24" style="width:44px;height:44px;fill:white">
+        <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+      </svg>
     </div>
-
-    <div id="auth-screen">
-        <div class="glass-card auth-box">
-            <div class="logo-icon">🌍</div>
-            <h1 style="font-size: 32px; margin-bottom: 10px; letter-spacing: -1px;">InvoiceBox <span style="color:var(--primary)">Global</span></h1>
-            <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">
-                מצויד במנוע סריקה תלת-שלבי לחילוץ סכומים מכל שפה ומטבע, מבוסס שיטת הניקוד.
-            </p>
-            <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="startAuth()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 5px;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                התחבר עם Google
-            </button>
-            <button class="btn btn-outline" style="width: 100%;" onclick="runDemo()">👀 הצג דמו בינלאומי</button>
-        </div>
+    <h1>InvoiceBox</h1>
+    <p>&#1505;&#1493;&#1512;&#1511; &#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514; &#1495;&#1499;&#1501; &#1506;&#1501; AI</p>
+  </div>
+  <div class="acard">
+    <div class="fgrid">
+      <div class="fi">&#128202; &#1490;&#1512;&#1508;&#1497;&#1501; &#1495;&#1493;&#1491;&#1513;&#1497;&#1497;&#1501;</div>
+      <div class="fi">&#129504; AI &#1500;&#1505;&#1499;&#1493;&#1502;&#1493;&#1514;</div>
+      <div class="fi">&#128269; &#1508;&#1497;&#1500;&#1496;&#1493;&#1512; &#1493;&#1495;&#1497;&#1508;&#1493;&#1513;</div>
+      <div class="fi">&#128229; &#1497;&#1497;&#1510;&#1493;&#1488; CSV</div>
+      <div class="fi">&#128178; &#1505;&#1499;&#1493;&#1502;&#1497;&#1501; &#1506;&#1500; &#1492;&#1513;&#1511;&#1500;</div>
+      <div class="fi">&#128336; 24 &#1495;&#1493;&#1491;&#1513; &#1488;&#1495;&#1493;&#1512;&#1492;</div>
     </div>
+    <button class="gbtn" onclick="startAuth()">
+      <svg width="22" height="22" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      &#1492;&#1514;&#1495;&#1489;&#1512; &#1506;&#1501; Google
+    </button>
+    <p class="anote">&#1511;&#1493;&#1512;&#1488; &#1502;&#1497;&#1497;&#1500;&#1497;&#1501; &#1489;&#1500;&#1489;&#1491; &#8212; &#1500;&#1488; &#1499;&#1493;&#1514;&#1489;, &#1500;&#1488; &#1502;&#1493;&#1495;&#1511;, &#1500;&#1488; &#1513;&#1493;&#1500;&#1495;</p>
+    <div class="divider">&#1488;&#1493;</div>
+    <button class="dbtn" onclick="loadDemo()">&#128064; &#1492;&#1510;&#1490; &#1491;&#1502;&#1493;</button>
+  </div>
+</div>
+</div>
 
-    <div id="dashboard" class="container hidden">
-        <header class="header">
-            <div>
-                <h2 style="font-size: 28px; display: flex; align-items: center; gap: 10px;">
-                    <span style="color:var(--primary)">🌍</span> הדשבורד הגלובלי שלי
-                </h2>
-                <p id="user-email" style="color: var(--text-muted); font-size: 14px; margin-top: 5px;"></p>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn btn-outline" onclick="exportCSV()">⬇️ ייצוא ל-Excel</button>
-                <button class="btn btn-outline" onclick="location.reload()">🚪 התנתק</button>
-            </div>
-        </header>
-
-        <div class="kpi-grid">
-            <div class="glass-card kpi-card">
-                <div class="kpi-label">סה"כ הוצאות שנסרקו</div>
-                <div class="kpi-val" id="kpi-total">0</div>
-            </div>
-            <div class="glass-card kpi-card">
-                <div class="kpi-label">חשבוניות שנמצאו</div>
-                <div class="kpi-val" id="kpi-count">0</div>
-            </div>
-            <div class="glass-card kpi-card">
-                <div class="kpi-label">ממוצע לחשבונית</div>
-                <div class="kpi-val" id="kpi-avg">0</div>
-            </div>
-        </div>
-
-        <div class="charts-layout">
-            <div class="glass-card chart-box">
-                <div class="chart-header">📊 הוצאות בחודשים האחרונים</div>
-                <canvas id="monthlyChart" height="250"></canvas>
-            </div>
-            <div class="glass-card chart-box">
-                <div class="chart-header">🏷️ התפלגות קטגוריות</div>
-                <canvas id="categoryChart" height="250"></canvas>
-            </div>
-        </div>
-
-        <div class="glass-card" style="padding: 20px;">
-            <div class="chart-header">🧾 פירוט חשבוניות רב-לשוני</div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>תאריך</th>
-                            <th>ספק</th>
-                            <th>נושא המייל</th>
-                            <th>קטגוריה</th>
-                            <th>סכום שחולץ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body"></tbody>
-                </table>
-            </div>
-        </div>
+<!-- LOADING -->
+<div id="loading" class="hidden">
+  <div class="lvisual">
+    <div class="lring"></div>
+    <div class="lring"></div>
+    <div class="lring"></div>
+    <div class="lcenter">
+      <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
     </div>
+  </div>
+  <h2>&#1505;&#1493;&#1512;&#1511; &#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514;...</h2>
+  <div id="scan-status">&#1502;&#1514;&#1495;&#1489;&#1512; &#1500;&#1490;'&#1497;&#1502;&#1497;&#1497;&#1500;...</div>
+  <div class="pwrap"><div class="pbar" id="pbar"></div></div>
+  <div id="scan-count">0 &#1502;&#1497;&#1497;&#1500;&#1497;&#1501; &#1504;&#1505;&#1512;&#1511;&#1493;</div>
+  <div id="ai-status"></div>
+</div>
 
-    <script>
-        // --- הגדרות Google API ---
-        const CLIENT_ID = '346127649716-mmtqoqa39p3pdm8k8ksp4k7phtp98a71.apps.googleusercontent.com';
-        const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
-        
-        let tokenClient;
-        let invoices = [];
-        let charts = {};
+<!-- DASHBOARD -->
+<div id="dash" class="hidden">
+  <div class="dhead">
+    <div class="dbrand">
+      <div class="bicon">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      </div>
+      <div class="btxt">
+        <h1>InvoiceBox</h1>
+        <span id="user-email">&#1502;&#1495;&#1493;&#1489;&#1512;</span>
+      </div>
+    </div>
+    <div class="hacts">
+      <button class="btn btng" onclick="refreshScan()">&#8635; &#1505;&#1512;&#1493;&#1511; &#1502;&#1495;&#1491;&#1513;</button>
+      <button class="btn btng" onclick="exportCSV()">&#128229; CSV</button>
+      <button class="btn btng" onclick="logout()">&#128682;</button>
+    </div>
+  </div>
 
-        // --- מנוע החילוץ הגלובלי (Scoring Engine) ---
-        
-        // 1. מילות מפתח לחיפוש מיילים (הורחב משמעותית)
-        const INVOICE_KEYWORDS = [
-            'חשבונית', 'קבלה', 'אישור הזמנה', 'קבלה על תשלום', // עברית
-            'invoice', 'receipt', 'order confirmation', 'payment', 'billing', // אנגלית
-            'facture', 'reçu', 'confirmation de commande', // צרפתית
-            'rechnung', 'quittung', 'bestellbestätigung', // גרמנית
-            'factura', 'recibo', 'confirmación de pedido', // ספרדית
-            'فاتورة', 'إيصال', 'تأكيد الطلب', // ערבית
-            'счет', 'квитанция', 'подтверждение заказа' // רוסית
-        ];
+  <div class="sgrid" id="sgrid"></div>
 
-        // 2. מילות מפתח שמצביעות על סכום סופי (לפי שפות) - משמש לשיטת הניקוד
-        const TOTAL_KEYWORDS = [
-            'סה"כ', 'סך הכל', 'לתשלום', 'חויבת', 'סכום', 'סה״כ', // עברית
-            'total', 'amount due', 'amount charged', 'grand total', 'sum', // אנגלית
-            'total à payer', 'montant', 'somme', // צרפתית
-            'gesamtbetrag', 'summe', 'betrag', // גרמנית
-            'total a pagar', 'importe', // ספרדית
-            'إجمالي', 'المبلغ', // ערבית
-            'итого', 'сумма', 'всего' // רוסית
-        ];
+  <div class="mnav">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+      <span style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px">&#1505;&#1497;&#1504;&#1493;&#1503; &#1500;&#1508;&#1497; &#1495;&#1493;&#1491;&#1513;</span>
+      <span id="period-lbl" style="font-size:11px;color:var(--t2)"></span>
+    </div>
+    <div class="mscroll" id="mscroll"></div>
+  </div>
 
-        // 3. תבנית לזיהוי מספרים של כסף + סמלי מטבע עולמיים או אותיות של מטבע (כמו USD, ILS)
-        const CURRENCY_REGEX = /(?:[\$\€\£\¥\₪\₽\₹\₺\฿]|USD|EUR|GBP|ILS|RUB|INR|AUD|CAD|CHF)\s*((?:\d{1,3}[,\s’]*)*\d{1,3}(?:[.,]\d{2})?)|((?:\d{1,3}[,\s’]*)*\d{1,3}(?:[.,]\d{2})?)\s*(?:[\$\€\£\¥\₪\₽\₹\₺\฿]|USD|EUR|GBP|ILS|RUB|INR|AUD|CAD|CHF)/gi;
+  <div class="crow1">
+    <div class="cc">
+      <div class="ch">
+        <div class="ct">&#128202; &#1492;&#1493;&#1510;&#1488;&#1493;&#1514; &#1500;&#1508;&#1497; &#1495;&#1493;&#1491;&#1513;</div>
+        <span class="cbadge" id="chart-total"></span>
+      </div>
+      <canvas id="ch-monthly" height="175"></canvas>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">&#127383; &#1511;&#1496;&#1490;&#1493;&#1512;&#1497;&#1493;&#1514;</div></div>
+      <canvas id="ch-cat" height="155"></canvas>
+      <div class="clegend" id="clegend"></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">&#127959;&#65039; &#1505;&#1508;&#1511;&#1497;&#1501;</div></div>
+      <div class="vlist" id="vlist"></div>
+    </div>
+  </div>
 
-        const CATEGORIES = {
-            'wolt|10bis|mcdonalds|pizza|uber eats|deliveroo|glovo': { name: 'אוכל ומשלוחים', icon: '🍔', color: '#ef4444' },
-            'amazon|aliexpress|ebay|next|shein|asos': { name: 'קניות אונליין', icon: '🛒', color: '#f59e0b' },
-            'netflix|spotify|google|apple|youtube|disney|hulu|xbox|playstation': { name: 'מנויים דיגיטליים', icon: '📱', color: '#8b5cf6' },
-            'חשמל|מים|ארנונה|גז|partner|cellcom|hot|yes|vodafone|t-mobile': { name: 'תקשורת ובית', icon: '🏠', color: '#06b6d4' },
-            'booking|airbnb|agoda|ryanair|wizz|elal|uber|lyft': { name: 'נסיעות ותיירות', icon: '✈️', color: '#f43f5e' },
-            'bit|paybox|paypal|revolut|wise': { name: 'העברות ותשלומים', icon: '💸', color: '#3b82f6' }
-        };
+  <div class="crow2">
+    <div class="cc">
+      <div class="ch"><div class="ct">&#128200; &#1502;&#1490;&#1502;&#1492; + &#1502;&#1502;&#1493;&#1510;&#1506; &#1504;&#1506;</div></div>
+      <canvas id="ch-trend" height="155"></canvas>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">&#128337; &#1492;&#1493;&#1510;&#1488;&#1493;&#1514; &#1500;&#1508;&#1497; &#1497;&#1493;&#1501; &#1489;&#1513;&#1489;&#1493;&#1506;</div></div>
+      <canvas id="ch-week" height="155"></canvas>
+    </div>
+  </div>
 
-        window.onload = () => {
-            const script1 = document.createElement('script');
-            script1.src = "https://apis.google.com/js/api.js";
-            script1.onload = () => gapi.load('client', () => gapi.client.init({ discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"] }));
-            document.head.appendChild(script1);
+  <div class="fpanel">
+    <span class="flbl">&#1505;&#1504;&#1503;:</span>
+    <input type="text" class="fi2" id="srch" placeholder="&#128269; &#1513;&#1493;&#1500;&#1495;, &#1504;&#1493;&#1513;&#1488;, &#1505;&#1499;&#1493;&#1501;..." oninput="applyFilters()" style="min-width:200px">
+    <div class="sw">
+      <select class="fi2" id="fcats" onchange="applyFilters()">
+        <option value="">&#1499;&#1500; &#1511;&#1496;&#1490;&#1493;&#1512;&#1497;&#1493;&#1514;</option>
+      </select>
+    </div>
+    <div class="sw">
+      <select class="fi2" id="famts" onchange="applyFilters()">
+        <option value="">&#1499;&#1500; &#1505;&#1499;&#1493;&#1502;&#1493;&#1514;</option>
+        <option value="0-50">&#8362;0-50</option>
+        <option value="50-200">&#8362;50-200</option>
+        <option value="200-500">&#8362;200-500</option>
+        <option value="500-1000">&#8362;500-1,000</option>
+        <option value="1000">&#8362;1,000+</option>
+      </select>
+    </div>
+    <div class="sw">
+      <select class="fi2" id="fsort" onchange="applyFilters()">
+        <option value="date-d">&#1514;&#1488;&#1512;&#1497;&#1498; &#8595;</option>
+        <option value="date-a">&#1514;&#1488;&#1512;&#1497;&#1498; &#8593;</option>
+        <option value="amt-d">&#1505;&#1499;&#1493;&#1501; &#8595;</option>
+        <option value="amt-a">&#1505;&#1499;&#1493;&#1501; &#8593;</option>
+        <option value="sender">&#1513;&#1493;&#1500;&#1495;</option>
+      </select>
+    </div>
+    <span class="rcount" id="rcount"></span>
+  </div>
 
-            const script2 = document.createElement('script');
-            script2.src = "https://accounts.google.com/gsi/client";
-            script2.onload = () => {
-                tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: CLIENT_ID,
-                    scope: SCOPES,
-                    callback: async (resp) => {
-                        if (resp.error) return alert('שגיאת התחברות: ' + resp.error);
-                        document.getElementById('auth-screen').classList.add('hidden');
-                        document.getElementById('loader').classList.remove('hidden');
-                        await fetchUserProfile();
-                        await scanEmails();
-                    }
-                });
-            };
-            document.head.appendChild(script2);
-        };
+  <div class="tcard">
+    <div class="thead2">
+      <div class="ct">&#129534; &#1499;&#1500; &#1492;&#1495;&#1513;&#1489;&#1493;&#1504;&#1497;&#1493;&#1514;</div>
+    </div>
+    <div class="tscroll">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('sender')">&#8597; &#1513;&#1493;&#1500;&#1495;</th>
+            <th onclick="sortBy('subject')">&#8597; &#1504;&#1493;&#1513;&#1488;</th>
+            <th onclick="sortBy('amt')">&#8597; &#1505;&#1499;&#1493;&#1501;</th>
+            <th>&#1502;&#1511;&#1493;&#1512;</th>
+            <th onclick="sortBy('cat')">&#8597; &#1511;&#1496;&#1490;&#1493;&#1512;&#1497;&#1492;</th>
+            <th onclick="sortBy('date')">&#8597; &#1514;&#1488;&#1512;&#1497;&#1498;</th>
+            <th>&#1508;&#1506;&#1493;&#1500;&#1493;&#1514;</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pag">
+      <span class="pinfo" id="pinfo"></span>
+      <div class="pbtns" id="pbtns"></div>
+    </div>
+  </div>
+</div>
 
-        function startAuth() { if (tokenClient) tokenClient.requestAccessToken({ prompt: 'consent' }); }
+<div class="toasts" id="toasts"></div>
+<input id="months-back" type="number" value="24" style="display:none">
 
-        async function fetchUserProfile() {
-            try {
-                const profile = await gapi.client.gmail.users.getProfile({ userId: 'me' });
-                document.getElementById('user-email').innerText = profile.result.emailAddress;
-            } catch (e) { console.error("Error fetching profile", e); }
-        }
+<script>
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// CONFIG
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+const CID = '346127649716-mmtqoqa39p3pdm8k8ksp4k7phtp98a71.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+const DISC = 'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest';
+const PAGE = 25;
 
-        async function scanEmails() {
-            try {
-                // יוצר שאילתת חיפוש ארוכה עם כל המילים
-                const query = `subject:(${INVOICE_KEYWORDS.join(' OR ')})`;
-                let msgs = [];
-                let pageToken = null;
-                
-                // סורק עד 80 הודעות
-                do {
-                    const res = await gapi.client.gmail.users.messages.list({ userId: 'me', q: query, maxResults: 40, pageToken: pageToken });
-                    if (res.result.messages) msgs = msgs.concat(res.result.messages);
-                    pageToken = res.result.nextPageToken;
-                } while (pageToken && msgs.length < 80);
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// INVOICE DETECTION \u2014 Comprehensive keyword set
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+const KW = [
+  // English
+  'invoice','receipt','order confirmation','your order','payment confirmation',
+  'payment receipt','billing statement','billing notice','subscription renewal',
+  'subscription invoice','purchase receipt','transaction receipt','order receipt',
+  'your purchase','charged','amount due','amount paid','total amount',
+  'tax invoice','credit note','debit note','statement of account',
+  'payment processed','payment received','order #','order number',
+  'ref #','reference number','thank you for your payment','thank you for your order',
+  'thank you for purchasing','auto-renew','auto renewal','your subscription',
+  'your plan','plan renewal','account statement',
+  // Hebrew
+  '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea','\u05e7\u05d1\u05dc\u05d4','\u05d0\u05d9\u05e9\u05d5\u05e8 \u05ea\u05e9\u05dc\u05d5\u05dd',
+  '\u05d0\u05d9\u05e9\u05d5\u05e8 \u05d7\u05d9\u05d5\u05d1','\u05d4\u05d6\u05de\u05e0\u05d4 \u05de\u05e1\u05e4\u05e8','\u05ea\u05d5\u05d3\u05d4 \u05e2\u05dc \u05e8\u05db\u05d9\u05e9\u05ea\u05da',
+  '\u05d7\u05d9\u05d5\u05d1 \u05d7\u05e9\u05d1\u05d5\u05df','\u05de\u05e0\u05d5\u05d9 \u05d7\u05d5\u05d3\u05e9\u05d9','\u05ea\u05e9\u05dc\u05d5\u05dd \u05d1\u05d5\u05e6\u05e2',
+  '\u05e1\u05db\u05d5\u05dd \u05dc\u05ea\u05e9\u05dc\u05d5\u05dd','\u05e4\u05d9\u05e8\u05d5\u05d8 \u05e2\u05e1\u05e7\u05d0\u05d5\u05ea','\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea \u05de\u05e1',
+  '\u05d7\u05e9\u05d1\u05d5\u05df \u05e2\u05e1\u05e7\u05d0\u05d5\u05ea'
+];
 
-                const total = msgs.length;
-                for (let i = 0; i < total; i++) {
-                    document.getElementById('progress-bar').style.width = `${((i+1)/total)*100}%`;
-                    document.getElementById('loader-text').innerText = `מחלץ נתונים (מייל ${i+1}/${total})...`;
-                    
-                    const details = await gapi.client.gmail.users.messages.get({ userId: 'me', id: msgs[i].id, format: 'full' });
-                    const inv = extractInvoiceData(details.result);
-                    if (inv && inv.amount > 0) invoices.push(inv);
-                }
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// AMOUNT EXTRACTION \u2014 20+ patterns
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+const APATS = [
+  // Shekel explicit
+  /\u20aa\s*([\d,]+(?:\.\d{1,2})?)/g,
+  /([\d,]+(?:\.\d{1,2})?)\s*\u20aa/g,
+  /ILS\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /([\d,]+(?:\.\d{1,2})?)\s*ILS/gi,
+  // USD
+  /\$\s*([\d,]+(?:\.\d{1,2})?)/g,
+  // EUR
+  /\u20ac\s*([\d,]+(?:\.\d{1,2})?)/g,
+  // Labeled totals
+  /total[:\s]+(?:amount[:\s]+)?[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /amount[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /charged[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /subtotal[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /grand total[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /payment[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /due[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /paid[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /price[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /cost[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  // Hebrew labels
+  /\u05e1\u05d4"\u05db[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /\u05e1\u05db\u05d5\u05dd[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /\u05d7\u05d5\u05d9\u05d9\u05d1[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /\u05de\u05d7\u05d9\u05e8[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /\u05e1\u05da \u05d4\u05db\u05dc[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /\u05dc\u05ea\u05e9\u05dc\u05d5\u05dd[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  // Bare number after currency words in subject
+  /(?:subscription|plan|renewal|membership)\s+(?:of\s+)?[\$\u20aa\u20ac]([\d,]+(?:\.\d{1,2})?)/gi,
+  /(?:\u05de\u05e0\u05d5\u05d9|\u05ea\u05e9\u05dc\u05d5\u05dd)\s+(?:\u05e9\u05dc\s+)?([\d,]+(?:\.\d{1,2})?)\s*[\u20aa\u05e9\u05e7\u05dc]/g,
+];
 
-                initDashboard();
-            } catch (err) {
-                console.error(err);
-                alert("קרתה שגיאה בסריקה.");
-                document.getElementById('loader').classList.add('hidden');
-            }
-        }
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// CATEGORIES
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+const CATS = {
+  'amazon|ebay|aliexpress|wish|etsy|shopify':         {n:'\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df',i:'\ud83d\uded2',c:'#f59e0b'},
+  'netflix|spotify|apple|google play|youtube|deezer|hbo|disney|paramount|apple tv|amazon prime':
+                                                       {n:'\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd',i:'\ud83d\udcf1',c:'#7c3aed'},
+  'wolt|10bis|deliveroo|uber eats|pizza|burger|mishloha':
+                                                       {n:'\u05d0\u05d5\u05db\u05dc \u05d5\u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd',i:'\ud83c\udf55',c:'#ef4444'},
+  'cellcom|hot mobile|partner|bezeq|yes|012|019|golan|pelephone|rami':
+                                                       {n:'\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea',i:'\ud83d\udce1',c:'#00d4ff'},
+  'electric|electricity|\u05d7\u05e9\u05de\u05dc|\u05de\u05d9\u05dd|\u05d0\u05e8\u05e0\u05d5\u05e0\u05d4|\u05d2\u05d6|\u05d1\u05d6\u05e7':
+                                                       {n:'\u05d7\u05e9\u05d1\u05d5\u05e0\u05d5\u05ea \u05d1\u05d9\u05ea',i:'\ud83c\udfe0',c:'#10b981'},
+  'flights|booking|airbnb|hotel|\u05d8\u05d9\u05e1\u05d5\u05ea|ryanair|easyjet|elal|arkia':
+                                                       {n:'\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea',i:'\u2708\ufe0f',c:'#06b6d4'},
+  'pharmacy|super pharm|\u05d1\u05d9\u05ea \u05de\u05e8\u05e7\u05d7\u05ea|boots|cvs|dr':
+                                                       {n:'\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea',i:'\ud83d\udc8a',c:'#84cc16'},
+  'microsoft|adobe|dropbox|zoom|slack|notion|figma|github|atlassian|jira|canva|cursor':
+                                                       {n:'\u05ea\u05d5\u05db\u05e0\u05d4',i:'\ud83d\udcbb',c:'#6366f1'},
+  'insurance|\u05d1\u05d9\u05d8\u05d5\u05d7|harel|migdal|menora':
+                                                       {n:'\u05d1\u05d9\u05d8\u05d5\u05d7',i:'\ud83d\udee1\ufe0f',c:'#f97316'},
+  'bank|\u05d1\u05e0\u05e7|visa|mastercard|paypal|stripe|leumi|hapoalim|discount':
+                                                       {n:'\u05d1\u05e0\u05e7\u05d0\u05d5\u05ea',i:'\ud83c\udfe6',c:'#eab308'},
+  'fuel|\u05d3\u05dc\u05e7|sonol|paz|delek|ten|\u05d3\u05dc\u05e7\u05df':
+                                                       {n:'\u05d3\u05dc\u05e7 \u05d5\u05e8\u05db\u05d1',i:'\u26fd',c:'#78716c'},
+  'shufersal|\u05e9\u05d5\u05e4\u05e8\u05e1\u05dc|rami levy|\u05e8\u05de\u05d9 \u05dc\u05d5\u05d9|mega|victory|yeinot bitan':
+                                                       {n:'\u05e1\u05d5\u05e4\u05e8 \u05de\u05e8\u05e7\u05d8',i:'\ud83d\uded1',c:'#4ade80'},
+  'gym|fitness|sport|\u05db\u05d5\u05e9\u05e8|\u05d7\u05d3\u05e8 \u05db\u05d5\u05e9\u05e8':
+                                                       {n:'\u05e1\u05e4\u05d5\u05e8\u05d8',i:'\ud83c\udfcb\ufe0f',c:'#f472b6'},
+  'udemy|coursera|pluralsight|linkedin learning|\u05e7\u05d5\u05e8\u05e1':
+                                                       {n:'\u05d7\u05d9\u05e0\u05d5\u05da',i:'\ud83c\udf93',c:'#a855f7'},
+};
 
-        function extractInvoiceData(msg) {
-            const headers = msg.payload.headers;
-            const subject = headers.find(h => h.name.toLowerCase() === 'subject')?.value || "";
-            const fromRaw = headers.find(h => h.name.toLowerCase() === 'from')?.value || "";
-            const dateStr = headers.find(h => h.name.toLowerCase() === 'date')?.value || "";
-            
-            const vendor = fromRaw.split('<')[0].replace(/"/g, '').trim();
-            const date = new Date(dateStr);
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// STATE
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+let invoices=[], filtered=[], page=1, activeMonth=null;
+let chMon=null,chCat=null,chTrend=null,chWeek=null;
+let aiProcessed=0, aiTotal=0;
 
-            // איחוד כל הטקסט האפשרי (נושא + תקציר + גוף ההודעה אם אפשר)
-            let fullText = (subject + " " + (msg.snippet || "")).toLowerCase();
-            if (msg.payload.parts) fullText += " " + getEmailBody(msg.payload.parts).toLowerCase();
-            
-            // ניקוי תווים בלתי נראים
-            fullText = fullText.replace(/[\u200B-\u200D\uFEFF]/g, '');
-            
-            // הפעלת מנוע הניקוד כדי למצוא את הסכום והמטבע הנכונים
-            const extractionResult = extractAmountWithScoring(fullText);
-            const amount = extractionResult.amount;
-            const currencyStr = extractionResult.currency || '₪'; // ברירת מחדל אם לא זוהה
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// AUTH
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function loadJS(src){return new Promise(r=>{const s=document.createElement('script');s.src=src;s.onload=r;document.head.appendChild(s);})}
 
-            // סיווג
-            let category = { name: 'כללי', icon: '📄', color: '#64748b' };
-            const searchStr = (vendor + " " + subject).toLowerCase();
-            for (const [key, val] of Object.entries(CATEGORIES)) {
-                if (key.split('|').some(k => searchStr.includes(k))) {
-                    category = val; break;
-                }
-            }
+async function startAuth(){
+  showScr('loading'); setStatus('\u05d8\u05d5\u05e2\u05df Google API...');
+  try{
+    await loadJS('https://apis.google.com/js/api.js');
+    await new Promise(r=>gapi.load('client',r));
+    await loadJS('https://accounts.google.com/gsi/client');
+    await gapi.client.init({discoveryDocs:[DISC]});
+    const tc=google.accounts.oauth2.initTokenClient({
+      client_id:CID,scope:SCOPES,
+      callback:async r=>{
+        if(r.error){showScr('auth');toast('error','\u274c '+r.error);return;}
+        await scan();
+      }
+    });
+    tc.requestAccessToken();
+  }catch(e){showScr('auth');toast('error','\u274c '+e.message);}
+}
 
-            return { vendor, subject, date, amount, currencyStr, category };
-        }
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// SCAN
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+async function scan(){
+  const months=parseInt(document.getElementById('months-back').value)||24;
+  const after=new Date(); after.setMonth(after.getMonth()-months);
+  const ts=Math.floor(after.getTime()/1000);
+  const queries=[
+    `after:${ts} subject:(invoice OR receipt OR "\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea" OR "\u05e7\u05d1\u05dc\u05d4" OR "order confirmation" OR "payment confirmation" OR billing OR statement OR subscription)`,
+    `after:${ts} (invoice OR receipt OR billing) has:attachment`,
+    `after:${ts} from:(billing OR payments OR invoices OR receipts OR noreply OR no-reply OR orders OR support)`,
+  ];
+  let ids=new Set();
+  for(const q of queries){
+    try{
+      let pt=null;
+      do{
+        const p2={userId:'me',q,maxResults:500};
+        if(pt)p2.pageToken=pt;
+        const r=await gapi.client.gmail.users.messages.list(p2);
+        (r.result.messages||[]).forEach(m=>ids.add(m.id));
+        pt=r.result.nextPageToken;
+        setStatus(`\u05e0\u05de\u05e6\u05d0\u05d5 ${ids.size} \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea \u05e4\u05d5\u05d8\u05e0\u05e6\u05d9\u05d0\u05dc\u05d9\u05d5\u05ea...`);
+      }while(pt&&ids.size<2000);
+    }catch(e){}
+  }
 
-        function getEmailBody(parts) {
-            let text = "";
-            for (let part of parts) {
-                if (part.mimeType === 'text/plain' && part.body.data) {
-                    text += atob(part.body.data.replace(/-/g, '+').replace(/_/g, '/'));
-                } else if (part.parts) {
-                    text += getEmailBody(part.parts);
-                }
-            }
-            return text;
-        }
+  const idArr=[...ids]; invoices=[];
+  const BATCH=20;
+  for(let i=0;i<idArr.length;i+=BATCH){
+    const batch=idArr.slice(i,i+BATCH);
+    const results=await Promise.all(batch.map(id=>
+      gapi.client.gmail.users.messages.get({userId:'me',id,format:'full'})
+        .then(r=>r.result).catch(()=>null)
+    ));
+    results.forEach(msg=>{if(msg){const inv=parseMsg(msg);if(inv)invoices.push(inv);}});
+    const pct=Math.min(100,Math.round((i+BATCH)/idArr.length*100));
+    document.getElementById('pbar').style.width=pct+'%';
+    document.getElementById('scan-count').textContent=`${Math.min(i+BATCH,idArr.length)} / ${idArr.length} \u05de\u05d9\u05d9\u05dc\u05d9\u05dd | ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea`;
+    setStatus(`\u05e1\u05d5\u05e8\u05e7 \u05de\u05d9\u05d9\u05dc ${Math.min(i+BATCH,idArr.length)}/${idArr.length}...`);
+    await new Promise(r=>setTimeout(r,20));
+  }
 
-        // --- ליבת המערכת: מנוע חילוץ מבוסס ניקוד ---
-        function extractAmountWithScoring(text) {
-            let matches = [];
-            let m;
-            CURRENCY_REGEX.lastIndex = 0; // איפוס
-            
-            // 1. מוצא את כל הסכומים בטקסט
-            while ((m = CURRENCY_REGEX.exec(text)) !== null) {
-                const valStr = m[1] || m[2];
-                // מנקה פסיקים ורווחים, ומחליף פסיק עשרוני אירופאי (12,99) לנקודה אנגלית (12.99)
-                let cleanValStr = valStr.replace(/[,\s’](?=\d{3})/g, '').replace(',', '.'); 
-                const num = parseFloat(cleanValStr);
-                
-                if (!isNaN(num) && num > 0) {
-                    // מחלץ את סימן המטבע
-                    const rawMatch = m[0].replace(valStr, '').trim();
-                    matches.push({ 
-                        value: num, 
-                        currency: rawMatch, 
-                        index: m.index, 
-                        score: 0 
-                    });
-                }
-            }
+  try{const p=await gapi.client.gmail.users.getProfile({userId:'me'});document.getElementById('user-email').textContent=p.result.emailAddress;}catch(e){}
 
-            if (matches.length === 0) return { amount: 0, currency: '' };
+  // AI enrichment pass for invoices without amount
+  const needsAI = invoices.filter(inv=>inv.amount===null);
+  if(needsAI.length>0){
+    setStatus(`\ud83e\udd16 AI \u05de\u05e0\u05ea\u05d7 ${needsAI.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05dc\u05dc\u05d0 \u05e1\u05db\u05d5\u05dd...`);
+    document.getElementById('ai-status').textContent=`\ud83e\udd16 AI \u05e2\u05d5\u05d1\u05d3...`;
+    await aiEnrichBatch(needsAI);
+  }
 
-            // 2. נותן ניקוד לכל מספר שנמצא
-            let highestScoreMatch = matches[0];
-            let maxAmount = Math.max(...matches.map(x => x.value));
+  buildDash();
+  showScr('dash');
+  const withAmt = invoices.filter(i=>i.amount!==null).length;
+  toast('success',`\u2705 ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea | ${withAmt} \u05e2\u05dd \u05e1\u05db\u05d5\u05dd`);
+}
 
-            matches.forEach(match => {
-                // בונוס ראשון: אם זה הסכום הגבוה ביותר במייל, כנראה שזה ה-Total ולא מחיר של פריט בודד
-                if (match.value === maxAmount) match.score += 50;
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// AI ENRICHMENT \u2014 Uses Claude API to extract amounts
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+async function aiEnrichBatch(invs){
+  // Process in small batches to not overload
+  const ABATCH = 5;
+  for(let i=0;i<invs.length;i+=ABATCH){
+    const batch = invs.slice(i,i+ABATCH);
+    await Promise.all(batch.map(inv => aiExtract(inv)));
+    const done = Math.min(i+ABATCH, invs.length);
+    document.getElementById('ai-status').textContent = `\ud83e\udd16 AI: \u05e2\u05d9\u05d1\u05d3 ${done}/${invs.length}`;
+    await new Promise(r=>setTimeout(r,100));
+  }
+  document.getElementById('ai-status').textContent = '';
+}
 
-                // בונוס
+async function aiExtract(inv){
+  try{
+    const prompt = `You are an invoice amount extractor. Given the following email subject and snippet, extract the payment amount.
+
+Subject: ${inv.subject}
+Snippet: ${inv.snippet||''}
+Sender: ${inv.from}
+
+Rules:
+- Return ONLY a JSON object: {"amount": number_or_null, "currency": "ILS/USD/EUR/null", "confidence": 0-100}
+- amount should be a number (e.g. 149.9) or null if not found
+- Prefer ILS amounts, then USD, then EUR
+- Ignore tax amounts separately, return the total/charged amount
+- If amount is clearly present, confidence should be 80-100
+- Do NOT include any explanation`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:100,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if(!res.ok) return;
+    const data = await res.json();
+    const text = data.content?.[0]?.text||'';
+    // Parse JSON from response
+    const cleaned = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(cleaned);
+    if(parsed.amount && parsed.amount > 0 && parsed.amount < 999999){
+      inv.amount = Math.round(parsed.amount*100)/100;
+      inv.amtSource = 'ai';
+      inv.aiConfidence = parsed.confidence||50;
+    }
+  }catch(e){/* silently fail */}
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// PARSE MESSAGE
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function parseMsg(msg){
+  const hdrs={};
+  (msg.payload?.headers||[]).forEach(h=>hdrs[h.name.toLowerCase()]=h.value);
+  const subj = hdrs['subject']||'';
+  const from = hdrs['from']||'';
+  const dateStr = hdrs['date']||'';
+  const snippet = msg.snippet||'';
+  const combined = (subj+' '+from+' '+snippet).toLowerCase();
+
+  // Must match at least one keyword
+  if(!KW.some(k=>combined.includes(k.toLowerCase()))) return null;
+
+  let date=new Date(dateStr);
+  if(isNaN(date)) date=new Date();
+
+  const sm=from.match(/^"?([^"<]+)"?\s*</);
+  const sender=sm?sm[1].trim():(from.split('@')[0]||from);
+
+  // Extract amount \u2014 cascade through sources
+  const [amount, amtSource] = extractAmount(subj, snippet, msg.payload);
+
+  const cat=categorize(combined);
+  return {
+    id:msg.id,sender,from,subject:subj,date,
+    amount, amtSource,
+    snippet,
+    aiConfidence:null,
+    category:cat.n,catIcon:cat.i,catColor:cat.c
+  };
+}
+
+function extractAmount(subj, snippet, payload){
+  // Source 1: Subject line
+  let amt = searchAmtPatterns(subj);
+  if(amt) return [amt,'subject'];
+
+  // Source 2: Snippet
+  amt = searchAmtPatterns(snippet);
+  if(amt) return [amt,'snippet'];
+
+  // Source 3: Email body (decoded)
+  const body = extractBody(payload);
+  if(body){
+    amt = searchAmtPatterns(body.substring(0,3000));
+    if(amt) return [amt,'body'];
+  }
+
+  return [null, null];
+}
+
+function searchAmtPatterns(text){
+  if(!text) return null;
+  const candidates=[];
+  for(const pat of APATS){
+    pat.lastIndex=0;
+    let m;
+    while((m=pat.exec(text))!==null){
+      const v=parseFloat(m[1].replace(/,/g,''));
+      if(v>0.5 && v<999999) candidates.push(v);
+    }
+  }
+  if(!candidates.length) return null;
+  // Smart selection: prefer amounts that look like totals (not quantities, not years)
+  const filtered=candidates.filter(v=>{
+    if(v===2024||v===2025||v===2026||v===2023) return false; // years
+    if(v<0.5) return false;
+    if(Number.isInteger(v) && v>9999 && v<99999) return false; // order numbers
+    return true;
+  });
+  if(!filtered.length) return null;
+  // Return max reasonable amount as it's likely the total
+  const sorted=filtered.sort((a,b)=>b-a);
+  return Math.round(sorted[0]*100)/100;
+}
+
+function extractBody(payload){
+  if(!payload) return '';
+  try{
+    if(payload.body?.data){
+      const b64=payload.body.data.replace(/-/g,'+').replace(/_/g,'/');
+      const decoded=atob(b64);
+      // Strip HTML tags
+      return decoded.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    }
+    if(payload.parts){
+      // Prefer text/plain, fall back to text/html
+      const plain=payload.parts.find(p=>p.mimeType==='text/plain');
+      const html=payload.parts.find(p=>p.mimeType==='text/html');
+      const target=plain||html;
+      if(target) return extractBody(target);
+      // Try recursively
+      for(const part of payload.parts){
+        const b=extractBody(part);
+        if(b) return b;
+      }
+    }
+  }catch(e){}
+  return '';
+}
+
+function categorize(text){
+  for(const [pat,cat] of Object.entries(CATS)){
+    if(pat.split('|').some(p=>text.includes(p))) return cat;
+  }
+  return {n:'\u05d0\u05d7\u05e8',i:'\ud83d\udcc4',c:'#64748b'};
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// DEMO
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function loadDemo(){
+  showScr('loading');
+  setStatus('\u05d8\u05d5\u05e2\u05df \u05e0\u05ea\u05d5\u05e0\u05d9 \u05d3\u05de\u05d5...');
+  document.getElementById('user-email').textContent='demo@gmail.com';
+  const V=[
+    {n:'Amazon',c:'\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df',i:'\ud83d\uded2',col:'#f59e0b',a:[49.9,129,299,89.9,199,39.9,459]},
+    {n:'Netflix',c:'\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd',i:'\ud83d\udcf1',col:'#7c3aed',a:[46.9]},
+    {n:'Spotify',c:'\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd',i:'\ud83d\udcf1',col:'#7c3aed',a:[24.9]},
+    {n:'Wolt',c:'\u05d0\u05d5\u05db\u05dc \u05d5\u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd',i:'\ud83c\udf55',col:'#ef4444',a:[45,78,32,55,91,28,63,44]},
+    {n:'Partner',c:'\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea',i:'\ud83d\udce1',col:'#00d4ff',a:[149,149,149]},
+    {n:'Hot',c:'\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea',i:'\ud83d\udce1',col:'#00d4ff',a:[249,249,249]},
+    {n:'Apple',c:'\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd',i:'\ud83d\udcf1',col:'#7c3aed',a:[14.9,29.9,4.9]},
+    {n:'AliExpress',c:'\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df',i:'\ud83d\uded2',col:'#f59e0b',a:[35,67,89,24,112]},
+    {n:'Adobe CC',c:'\u05ea\u05d5\u05db\u05e0\u05d4',i:'\ud83d\udcbb',col:'#6366f1',a:[89]},
+    {n:'Microsoft 365',c:'\u05ea\u05d5\u05db\u05e0\u05d4',i:'\ud83d\udcbb',col:'#6366f1',a:[45]},
+    {n:'Booking.com',c:'\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea',i:'\u2708\ufe0f',col:'#06b6d4',a:[890,1240,450,670]},
+    {n:'Super-Pharm',c:'\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea',i:'\ud83d\udc8a',col:'#84cc16',a:[89,145,67,230]},
+    {n:'\u05d7\u05d1\u05e8\u05ea \u05d7\u05e9\u05de\u05dc',c:'\u05d7\u05e9\u05d1\u05d5\u05e0\u05d5\u05ea \u05d1\u05d9\u05ea',i:'\ud83c\udfe0',col:'#10b981',a:[310,290,340,280,320]},
+    {n:'Shufersal',c:'\u05e1\u05d5\u05e4\u05e8 \u05de\u05e8\u05e7\u05d8',i:'\ud83d\uded1',col:'#4ade80',a:[450,380,520,410,490,360]},
+    {n:'Ten Fuel',c:'\u05d3\u05dc\u05e7 \u05d5\u05e8\u05db\u05d1',i:'\u26fd',col:'#78716c',a:[200,180,220,195,210]},
+    {n:'Google One',c:'\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd',i:'\ud83d\udcf1',col:'#7c3aed',a:[9.9]},
+    {n:'Rami Levy',c:'\u05e1\u05d5\u05e4\u05e8 \u05de\u05e8\u05e7\u05d8',i:'\ud83d\uded1',col:'#4ade80',a:[320,410,280,390,350]},
+    {n:'PayPal',c:'\u05d1\u05e0\u05e7\u05d0\u05d5\u05ea',i:'\ud83c\udfe6',col:'#eab308',a:[50,120,80,300]},
+    {n:'Airbnb',c:'\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea',i:'\u2708\ufe0f',col:'#06b6d4',a:[700,450,920]},
+    {n:'Dropbox',c:'\u05ea\u05d5\u05db\u05e0\u05d4',i:'\ud83d\udcbb',col:'#6366f1',a:[45]},
+  ];
+  invoices=[];
+  const now=new Date();
+  for(let m=23;m>=0;m--){
+    const num=Math.floor(Math.random()*18)+7;
+    for(let i=0;i<num;i++){
+      const v=V[Math.floor(Math.random()*V.length)];
+      const d=new Date(now.getFullYear(),now.getMonth()-m,Math.floor(Math.random()*27)+1);
+      const base=v.a[Math.floor(Math.random()*v.a.length)];
+      const amt=Math.round((base+(Math.random()*4-2))*100)/100;
+      invoices.push({
+        id:`demo-${m}-${i}`,sender:v.n,from:`billing@${v.n.toLowerCase().replace(/[\s.]+/g,'')}.com`,
+        subject:`\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea #${Math.floor(Math.random()*90000+10000)} - \u20aa${amt}`,
+        date:d,amount:amt,amtSource:'subject',snippet:`Total: \u20aa${amt}`,
+        aiConfidence:null,category:v.c,catIcon:v.i,catColor:v.col
+      });
+    }
+  }
+  let p=0;
+  const iv=setInterval(()=>{
+    p=Math.min(p+2,100);
+    document.getElementById('pbar').style.width=p+'%';
+    document.getElementById('scan-count').textContent=`${Math.floor(p/100*invoices.length)} / ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea`;
+    if(p>=100){
+      clearInterval(iv);
+      setTimeout(()=>{
+        buildDash();showScr('dash');
+        toast('success',`\u2705 \u05d3\u05de\u05d5: ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea`);
+      },300);
+    }
+  },25);
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// DASHBOARD
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function buildDash(){
+  invoices.sort((a,b)=>b.date-a.date);
+  filtered=[...invoices];
+  buildStats();
+  buildMonthStrip();
+  buildCharts();
+  buildCatFilter();
+  buildTable();
+}
+
+function buildStats(){
+  const wa=invoices.filter(i=>i.amount!==null);
+  const total=wa.reduce((s,i)=>s+i.amount,0);
+  const avg=wa.length?total/wa.length:0;
+  const now=new Date();
+  const tm=invoices.filter(i=>i.date.getMonth()===now.getMonth()&&i.date.getFullYear()===now.getFullYear());
+  const pm=invoices.filter(i=>{const d=new Date(now);d.setMonth(d.getMonth()-1);return i.date.getMonth()===d.getMonth()&&i.date.getFullYear()===d.getFullYear();});
+  const tma=tm.filter(i=>i.amount).reduce((s,i)=>s+i.amount,0);
+  const pma=pm.filter(i=>i.amount).reduce((s,i)=>s+i.amount,0);
+  const trnd=pma>0?((tma-pma)/pma*100).toFixed(1):0;
+  const cats={};invoices.forEach(i=>{cats[i.category]=(cats[i.category]||0)+1;});
+  const topCat=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  const monthlyAmts=getMonthlyData();
+  const maxM=monthlyAmts.reduce((m,v)=>v>m?v:m,0);
+  const aiCount=invoices.filter(i=>i.amtSource==='ai').length;
+
+  document.getElementById('sgrid').innerHTML=`
+    <div class="stile s1">
+      <div class="slbl">\u05e1\u05d4"\u05db \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+      <div class="sval">${N(invoices.length)}</div>
+      <div class="ssub">\u05d1-${getMonthRange()} \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd</div>
+    </div>
+    <div class="stile s3">
+      <div class="slbl">\u05e1\u05d4"\u05db \u05d4\u05d5\u05e6\u05d0\u05d5\u05ea</div>
+      <div class="sval">\u20aa${N(total)}</div>
+      <div class="ssub">${wa.length} \u05e2\u05dd \u05e1\u05db\u05d5\u05dd${aiCount>0?` | ${aiCount} AI`:''}</div>
+    </div>
+    <div class="stile s5">
+      <div class="slbl">\u05d4\u05d7\u05d5\u05d3\u05e9 \u05d4\u05e0\u05d5\u05db\u05d7\u05d9</div>
+      <div class="sval">\u20aa${N(tma)}</div>
+      <div class="strend ${parseFloat(trnd)>0?'tup':'tdn'}">${parseFloat(trnd)>0?'\u25b2':'\u25bc'} ${Math.abs(trnd)}%</div>
+    </div>
+    <div class="stile s4">
+      <div class="slbl">\u05de\u05de\u05d5\u05e6\u05e2 \u05dc\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea</div>
+      <div class="sval">\u20aa${N(avg)}</div>
+      <div class="ssub">\u05de\u05d1\u05d5\u05e1\u05e1 ${wa.length}</div>
+    </div>
+    <div class="stile s2">
+      <div class="slbl">\u05e7\u05d8\u05d2 \u05de\u05d5\u05d1\u05d9\u05dc\u05d4</div>
+      <div class="sval" style="font-size:15px;line-height:1.3">${topCat?topCat[0]:'-'}</div>
+      <div class="ssub">${topCat?topCat[1]+' \u05d7\u05e9\u05d1':''}</div>
+    </div>
+    <div class="stile s6">
+      <div class="slbl">\u05e9\u05d9\u05d0 \u05d7\u05d5\u05d3\u05e9</div>
+      <div class="sval">\u20aa${N(maxM)}</div>
+      <div class="ssub">\u05d4\u05d7\u05d5\u05d3\u05e9 \u05d4\u05d2\u05d1\u05d5\u05d4 \u05d1\u05d9\u05d5\u05ea\u05e8</div>
+    </div>
+  `;
+}
+
+function getMonthlyData(){
+  const map={};
+  invoices.forEach(i=>{
+    const k=`${i.date.getFullYear()}-${String(i.date.getMonth()+1).padStart(2,'0')}`;
+    if(!map[k]) map[k]=0;
+    if(i.amount) map[k]+=i.amount;
+  });
+  return Object.entries(map).sort((a,b)=>a[0].localeCompare(b[0])).map(([,v])=>Math.round(v));
+}
+
+function getMonthlyKeys(){
+  const map={};
+  invoices.forEach(i=>{
+    const k=`${i.date.getFullYear()}-${String(i.date.getMonth()+1).padStart(2,'0')}`;
+    map[k]=1;
+  });
+  const MN=['\u05d9\u05e0\u05d5','\u05e4\u05d1\u05e8','\u05de\u05e8\u05e5','\u05d0\u05e4\u05e8','\u05de\u05d0\u05d9','\u05d9\u05d5\u05e0\u05d9','\u05d9\u05d5\u05dc\u05d9','\u05d0\u05d5\u05d2','\u05e1\u05e4\u05d8','\u05d0\u05d5\u05e7','\u05e0\u05d5\u05d1','\u05d3\u05e6\u05de'];
+  return Object.keys(map).sort().map(k=>{const[y,m]=k.split('-');return `${MN[parseInt(m)-1]} ${y.slice(2)}`;});
+}
+
+function getMonthRange(){
+  if(!invoices.length) return 0;
+  const old=invoices.reduce((a,b)=>a.date<b.date?a:b);
+  return Math.ceil((new Date()-old.date)/(30*24*3600*1000));
+}
+
+function buildMonthStrip(){
+  const map={};
+  invoices.forEach(i=>{
+    const k=`${i.date.getFullYear()}-${String(i.date.getMonth()+1).padStart(2,'0')}`;
+    if(!map[k]) map[k]={count:0,amount:0};
+    map[k].count++;
+    if(i.amount) map[k].amount+=i.amount;
+  });
+  const MN=['\u05d9\u05e0\u05d5','\u05e4\u05d1\u05e8','\u05de\u05e8\u05e5','\u05d0\u05e4\u05e8','\u05de\u05d0\u05d9','\u05d9\u05d5\u05e0\u05d9','\u05d9\u05d5\u05dc\u05d9','\u05d0\u05d5\u05d2','\u05e1\u05e4\u05d8','\u05d0\u05d5\u05e7','\u05e0\u05d5\u05d1','\u05d3\u05e6\u05de'];
+  const sorted=Object.entries(map).sort((a,b)=>b[0].localeCompare(a[0]));
+  const scr=document.getElementById('mscroll');
+  scr.innerHTML=`<div class="mchip active" onclick="filterMonth(null,this)">
+    <span class="ml">\u05d4\u05db\u05dc</span>
+    <span class="ma">${invoices.length} \u05d7\u05e9\u05d1'</span>
+  </div>`;
+  sorted.forEach(([k,d])=>{
+    const[y,m]=k.split('-');
+    scr.innerHTML+=`<div class="mchip" onclick="filterMonth('${k}',this)">
+      <span class="ml">${MN[parseInt(m)-1]} ${y}</span>
+      <span class="ma">\u20aa${N(d.amount)}</span>
+    </div>`;
+  });
+}
+
+function filterMonth(key,el){
+  document.querySelectorAll('.mchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  activeMonth=key;
+  document.getElementById('period-lbl').textContent=key?`\u05de\u05e6\u05d9\u05d2: ${el.querySelector('.ml').textContent}`:'';
+  applyFilters();
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// CHARTS
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+const TT={
+  backgroundColor:'#111d30',borderColor:'#1a2d47',borderWidth:1,
+  titleColor:'#e8f0fe',bodyColor:'#00e5ff',padding:10,
+  callbacks:{label:c=>`\u20aa${N(c.raw)}`}
+};
+
+function buildCharts(){
+  const lbl=getMonthlyKeys();
+  const dat=getMonthlyData();
+  const max=Math.max(...dat)||1;
+
+  // Monthly bar
+  if(chMon) chMon.destroy();
+  chMon=new Chart(document.getElementById('ch-monthly'),{
+    type:'bar',
+    data:{labels:lbl,datasets:[{
+      data:dat,
+      backgroundColor:dat.map(v=>`rgba(0,229,255,${.18+.65*(v/max)})`),
+      borderColor:dat.map(v=>v===max?'#00e5ff':'rgba(0,229,255,.3)'),
+      borderWidth:1,borderRadius:6,borderSkipped:false
+    }]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{...TT}},
+      scales:{
+        x:{grid:{color:'rgba(26,45,71,.5)'},ticks:{color:'#4a6080',font:{size:9,family:"'Heebo'"}}},
+        y:{grid:{color:'rgba(26,45,71,.5)'},ticks:{color:'#4a6080',font:{size:9,family:"'Heebo'"},callback:v=>'\u20aa'+N(v)}}
+      },animation:{duration:700,easing:'easeOutQuart'}}
+  });
+  const totStr='\u20aa'+N(dat.reduce((s,v)=>s+v,0));
+  document.getElementById('chart-total').textContent=totStr;
+
+  // Category donut
+  const catT={};invoices.forEach(i=>{if(i.amount)catT[i.category]=(catT[i.category]||0)+i.amount;});
+  const catC={};invoices.forEach(i=>{catC[i.category]=i.catColor;});
+  const ents=Object.entries(catT).sort((a,b)=>b[1]-a[1]);
+  const totalAmt=ents.reduce((s,[,v])=>s+v,0);
+  if(chCat) chCat.destroy();
+  chCat=new Chart(document.getElementById('ch-cat'),{
+    type:'doughnut',
+    data:{labels:ents.map(([k])=>k),datasets:[{
+      data:ents.map(([,v])=>Math.round(v)),
+      backgroundColor:ents.map(([k])=>catC[k]||'#64748b'),
+      borderWidth:0,hoverOffset:5
+    }]},
+    options:{responsive:true,cutout:'66%',
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#111d30',borderColor:'#1a2d47',borderWidth:1,titleColor:'#e8f0fe',bodyColor:'#00e5ff',padding:10,
+        callbacks:{label:c=>`\u20aa${N(c.raw)} (${(c.raw/totalAmt*100).toFixed(1)}%)`}
+      }},
+      animation:{duration:700}}
+  });
+  document.getElementById('clegend').innerHTML=ents.map(([k,v])=>`
+    <div class="citem" onclick="filterByCat('${k}')">
+      <div class="cleft"><div class="cdot" style="background:${catC[k]||'#64748b'}"></div><span class="cn">${k}</span></div>
+      <div class="cright"><span class="cpct">${(v/totalAmt*100).toFixed(1)}%</span><span class="cval">\u20aa${N(v)}</span></div>
+    </div>`).join('');
+
+  // Vendor bars
+  const vm={};invoices.forEach(i=>{if(i.amount)vm[i.sender]=(vm[i.sender]||0)+i.amount;});
+  const top=Object.entries(vm).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const vmax=top[0]?.[1]||1;
+  const vc=['#00e5ff','#7c3aed','#00ffa3','#ff6b35','#ffd93d','#ff4d6d','#a78bff','#34d399'];
+  document.getElementById('vlist').innerHTML=top.map(([n,a],i)=>`
+    <div class="vi">
+      <div class="vm"><span class="vn">${n}</span><span class="va">\u20aa${N(a)}</span></div>
+      <div class="vtrack"><div class="vfill" style="width:${(a/vmax*100).toFixed(1)}%;background:${vc[i]};box-shadow:0 0 6px ${vc[i]}44"></div></div>
+    </div>`).join('');
+
+  // Trend + MA3
+  const ma3=dat.map((v,i)=>{const w=dat.slice(Math.max(0,i-2),i+1);return Math.round(w.reduce((a,b)=>a+b,0)/w.length);});
+  if(chTrend) chTrend.destroy();
+  chTrend=new Chart(document.getElementById('ch-trend'),{
+    type:'line',
+    data:{labels:lbl,datasets:[
+      {label:'\u05d4\u05d5\u05e6\u05d0\u05d5\u05ea',data:dat,borderColor:'rgba(0,229,255,.7)',
+        backgroundColor:'rgba(0,229,255,.05)',fill:true,tension:.4,pointRadius:3,
+        pointBackgroundColor:'#00e5ff',pointHoverRadius:6},
+      {label:'\u05de\u05de\u05d5\u05e6\u05e2 \u05e0\u05e2',data:ma3,borderColor:'rgba(124,58,237,.9)',
+        backgroundColor:'transparent',borderDash:[5,4],tension:.4,pointRadius:0}
+    ]},
+    options:{responsive:true,
+      plugins:{legend:{labels:{color:'#8ba3c7',font:{size:10,family:"'Heebo'"},boxWidth:10,padding:10}},
+        tooltip:{backgroundColor:'#111d30',borderColor:'#1a2d47',borderWidth:1,titleColor:'#e8f0fe',bodyColor:'#00e5ff',padding:10,
+          callbacks:{label:c=>`${c.dataset.label}: \u20aa${N(c.raw)}`}}},
+      scales:{
+        x:{grid:{color:'rgba(26,45,71,.5)'},ticks:{color:'#4a6080',font:{size:9}}},
+        y:{grid:{color:'rgba(26,45,71,.5)'},ticks:{color:'#4a6080',font:{size:9},callback:v=>'\u20aa'+N(v)}}
+      },animation:{duration:700}}
+  });
+
+  // Weekly heatmap
+  const days=['\u05d0\u05d7\u05d3','\u05e9\u05e0\u05d9','\u05e9\u05dc\u05d9\u05e9\u05d9','\u05e8\u05d1\u05d9\u05e2\u05d9','\u05d7\u05de\u05d9\u05e9\u05d9','\u05e9\u05d9\u05e9\u05d9','\u05e9\u05d1\u05ea'];
+  const dA=[0,0,0,0,0,0,0],dC=[0,0,0,0,0,0,0];
+  invoices.forEach(i=>{const d=i.date.getDay();dC[d]++;if(i.amount)dA[d]+=i.amount;});
+  const dmax=Math.max(...dA)||1;
+  if(chWeek) chWeek.destroy();
+  chWeek=new Chart(document.getElementById('ch-week'),{
+    type:'bar',
+    data:{labels:days,datasets:[{
+      data:dA.map(v=>Math.round(v)),
+      backgroundColor:dA.map(v=>`rgba(124,58,237,${.15+.75*(v/dmax)})`),
+      borderColor:'rgba(124,58,237,.5)',borderWidth:1,borderRadius:6
+    }]},
+    options:{responsive:true,
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#111d30',borderColor:'#1a2d47',borderWidth:1,titleColor:'#e8f0fe',bodyColor:'#a78bff',padding:10,
+        callbacks:{label:(c)=>`\u05d4\u05d5\u05e6\u05d0\u05d5\u05ea: \u20aa${N(c.raw)} | ${dC[c.dataIndex]} \u05d7\u05e9\u05d1'`}
+      }},
+      scales:{
+        x:{grid:{color:'rgba(26,45,71,.5)'},ticks:{color:'#4a6080',font:{size:9}}},
+        y:{grid:{color:'rgba(26,45,71,.5)'},ticks:{color:'#4a6080',font:{size:9},callback:v=>'\u20aa'+N(v)}}
+      },animation:{duration:700}}
+  });
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// FILTERS & TABLE
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function buildCatFilter(){
+  const cats=[...new Set(invoices.map(i=>i.category))].sort();
+  const s=document.getElementById('fcats');
+  s.innerHTML=`<option value="">\u05db\u05dc \u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d5\u05ea</option>`+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function filterByCat(cat){
+  document.getElementById('fcats').value=cat;
+  applyFilters();
+  document.getElementById('tbody').scrollIntoView({behavior:'smooth'});
+}
+
+function applyFilters(){
+  const srch=document.getElementById('srch').value.toLowerCase();
+  const cat=document.getElementById('fcats').value;
+  const arng=document.getElementById('famts').value;
+  const srt=document.getElementById('fsort').value;
+
+  let base=activeMonth?invoices.filter(i=>{
+    const[y,m]=activeMonth.split('-');
+    return i.date.getFullYear()===parseInt(y)&&(i.date.getMonth()+1)===parseInt(m);
+  }):[...invoices];
+
+  filtered=base.filter(i=>{
+    const ms=!srch||i.sender.toLowerCase().includes(srch)||i.subject.toLowerCase().includes(srch)||
+              i.category.toLowerCase().includes(srch)||(i.amount&&String(i.amount).includes(srch));
+    const mc=!cat||i.category===cat;
+    let ma=true;
+    if(arng){
+      const parts=arng.split('-');
+      if(arng==='1000'){ma=i.amount&&i.amount>=1000;}
+      else{const lo=parseFloat(parts[0]),hi=parseFloat(parts[1]);ma=i.amount&&i.amount>=lo&&i.amount<=hi;}
+    }
+    return ms&&mc&&ma;
+  });
+
+  filtered.sort((a,b)=>{
+    if(srt==='date-d') return b.date-a.date;
+    if(srt==='date-a') return a.date-b.date;
+    if(srt==='amt-d') return (b.amount||0)-(a.amount||0);
+    if(srt==='amt-a') return (a.amount||0)-(b.amount||0);
+    if(srt==='sender') return a.sender.localeCompare(b.sender);
+    if(srt==='cat') return a.category.localeCompare(b.category);
+    return 0;
+  });
+
+  page=1;
+  document.getElementById('rcount').textContent=`${filtered.length} \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea`;
+  buildTable();
+}
+
+function sortBy(f){
+  const s=document.getElementById('fsort');
+  const c=s.value;
+  if(f==='date') s.value=c==='date-d'?'date-a':'date-d';
+  else if(f==='amt') s.value=c==='amt-d'?'amt-a':'amt-d';
+  else if(f==='sender') s.value='sender';
+  else if(f==='cat') s.value='cat';
+  applyFilters();
+}
+
+function buildTable(){
+  const start=(page-1)*PAGE;
+  const pg=filtered.slice(start,start+PAGE);
+  const PAL=['#00e5ff','#7c3aed','#00ffa3','#ff6b35','#ffd93d','#ff4d6d','#a78bff','#34d399','#fb7185','#38bdf8'];
+  const AC=n=>PAL[[...n].reduce((s,c)=>s+c.charCodeAt(0),0)%PAL.length];
+
+  if(!pg.length){
+    document.getElementById('tbody').innerHTML=`<tr><td colspan="7" style="padding:50px;text-align:center;color:var(--t3)">\u05dc\u05d0 \u05e0\u05de\u05e6\u05d0\u05d5 \u05ea\u05d5\u05e6\u05d0\u05d5\u05ea</td></tr>`;
+    document.getElementById('pinfo').textContent='';
+    document.getElementById('pbtns').innerHTML='';
+    return;
+  }
+
+  document.getElementById('tbody').innerHTML=pg.map(inv=>{
+    const clr=AC(inv.sender);
+    const emailS=inv.from.replace(/<.*>/,'').trim().substring(0,32);
+    const subjS=inv.subject.substring(0,52)+(inv.subject.length>52?'\u2026':'');
+    const amtHTML=inv.amount!==null
+      ? `<span class="apos">\u20aa${N(inv.amount)}</span>`
+      : `<span class="anone">\u2014</span>`;
+    const srcHTML=inv.amtSource?`<div class="aisrc">${inv.amtSource==='ai'?'\ud83e\udd16 AI':inv.amtSource==='body'?'\ud83d\udcc4 \u05d2\u05d5\u05e3':inv.amtSource==='snippet'?'\ud83d\udcdd \u05e1\u05e0\u05d9\u05e4\u05d8':'\ud83d\udccc \u05e0\u05d5\u05e9\u05d0'}</div>`:'';
+    return `<tr>
+      <td><div class="tsender">
+        <div class="vavt" style="background:${clr}18;color:${clr}">${inv.catIcon||inv.sender[0]}</div>
+        <div><div class="sn">${E(inv.sender)}</div><div class="se">${E(emailS)}</div></div>
+      </div></td>
+      <td><div class="subj" title="${E(inv.subject)}">${E(subjS)}</div></td>
+      <td class="amtc">${amtHTML}</td>
+      <td>${srcHTML}</td>
+      <td><span class="cpill" style="background:${inv.catColor}18;color:${inv.catColor}">${inv.catIcon} ${E(inv.category)}</span></td>
+      <td class="datec">${FD(inv.date)}</td>
+      <td><button class="obtn" onclick="openEmail('${inv.id}')">&#128231; \u05e4\u05ea\u05d7</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pinfo').textContent=`\u05de\u05e6\u05d9\u05d2 ${start+1}-${Math.min(start+PAGE,filtered.length)} \u05de\u05ea\u05d5\u05da ${filtered.length}`;
+
+  const tp=Math.ceil(filtered.length/PAGE);
+  let h='';
+  if(page>1) h+=`<button class="pbtn" onclick="goPage(${page-1})">&lsaquo;</button>`;
+  const pages=[];
+  for(let p=Math.max(1,page-2);p<=Math.min(tp,page+2);p++) pages.push(p);
+  if(!pages.includes(1)){h+=`<button class="pbtn" onclick="goPage(1)">1</button>`;if(pages[0]>2)h+=`<span style="color:var(--t3);padding:0 3px;font-size:11px">...</span>`;}
+  pages.forEach(p=>h+=`<button class="pbtn${p===page?' active':''}" onclick="goPage(${p})">${p}</button>`);
+  if(!pages.includes(tp)&&tp>1){if(pages[pages.length-1]<tp-1)h+=`<span style="color:var(--t3);padding:0 3px;font-size:11px">...</span>`;h+=`<button class="pbtn" onclick="goPage(${tp})">${tp}</button>`;}
+  if(page<tp) h+=`<button class="pbtn" onclick="goPage(${page+1})">&rsaquo;</button>`;
+  document.getElementById('pbtns').innerHTML=h;
+}
+
+function goPage(p){page=p;buildTable();const el=document.getElementById('tbody');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// EXPORT
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function exportCSV(){
+  const BOM='\uFEFF';
+  const rows=[['\u05e9\u05d5\u05dc\u05d7','\u05d0\u05d9\u05de\u05d9\u05d9\u05dc','\u05e0\u05d5\u05e9\u05d0','\u05e1\u05db\u05d5\u05dd','\u05de\u05e7\u05d5\u05e8','\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4','\u05ea\u05d0\u05e8\u05d9\u05da']];
+  filtered.forEach(i=>rows.push([i.sender,i.from,i.subject,i.amount!==null?i.amount:'',i.amtSource||'',i.category,FD(i.date)]));
+  const csv=BOM+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`invoices_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast('success','\ud83d\udce5 CSV \u05d9\u05d5\u05e6\u05d0!');
+}
+
+function openEmail(id){
+  if(id.startsWith('demo')){toast('info','\u05d3\u05de\u05d5 - \u05d0\u05d9\u05df \u05de\u05d9\u05d9\u05dc \u05d0\u05de\u05d9\u05ea\u05d9');return;}
+  window.open(`https://mail.google.com/mail/u/0/#inbox/${id}`,'_blank');
+}
+
+async function refreshScan(){invoices=[];showScr('loading');document.getElementById('pbar').style.width='0%';document.getElementById('ai-status').textContent='';await scan();}
+function logout(){invoices=[];showScr('auth');}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// UTILS
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function showScr(n){
+  document.getElementById('auth').classList.toggle('hidden',n!=='auth');
+  document.getElementById('loading').classList.toggle('hidden',n!=='loading');
+  document.getElementById('dash').classList.toggle('hidden',n!=='dash');
+}
+function setStatus(m){document.getElementById('scan-status').textContent=m;}
+function N(v){if(v===undefined||v===null||isNaN(v))return'0';return Math.round(v).toLocaleString('he-IL');}
+function FD(d){if(!d||isNaN(d))return'';return d.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'2-digit'});}
+function E(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(type,msg){
+  const el=document.createElement('div');
+  el.className=`toast ${type}`;el.textContent=msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},4000);
+}
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// SELF-TESTS (run in background)
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function runTests(){
+  const R=[];
+  const P=n=>R.push({n,ok:true});
+  const F=(n,e)=>R.push({n,ok:false,e});
+
+  // T1: searchAmtPatterns - shekel
+  try{const v=searchAmtPatterns('\u20aa149.90 \u05d0\u05d9\u05e9\u05d5\u05e8');if(v===149.90)P('searchAmtPatterns \u20aa'); else F('searchAmtPatterns \u20aa',v);}catch(e){F('searchAmtPatterns \u20aa',e.message);}
+
+  // T2: searchAmtPatterns - total label
+  try{const v=searchAmtPatterns('total: $89.99 tax: $8.00');if(v===89.99)P('searchAmtPatterns total'); else F('searchAmtPatterns total',v);}catch(e){F('searchAmtPatterns total',e.message);}
+
+  // T3: searchAmtPatterns - Hebrew label
+  try{const v=searchAmtPatterns('\u05e1\u05d4"\u05db: 329 \u05e9\u05e7\u05dc');if(v===329)P('searchAmtPatterns \u05e1\u05d4"\u05db'); else F('searchAmtPatterns \u05e1\u05d4"\u05db',v);}catch(e){F('searchAmtPatterns \u05e1\u05d4"\u05db',e.message);}
+
+  // T4: Ignore years
+  try{const v=searchAmtPatterns('Invoice 2024 - total: $45.00');if(v===45)P('\u05d3\u05d7\u05d9\u05d9\u05ea \u05e9\u05e0\u05d9\u05dd'); else F('\u05d3\u05d7\u05d9\u05d9\u05ea \u05e9\u05e0\u05d9\u05dd',v);}catch(e){F('\u05d3\u05d7\u05d9\u05d9\u05ea \u05e9\u05e0\u05d9\u05dd',e.message);}
+
+  // T5: categorize amazon
+  try{const c=categorize('amazon order confirmation');if(c.n.includes('\u05e7\u05e0\u05d9\u05d5\u05ea'))P('categorize amazon'); else F('categorize amazon',c.n);}catch(e){F('categorize amazon',e.message);}
+
+  // T6: categorize netflix
+  try{const c=categorize('netflix subscription renewal');if(c.n.includes('\u05de\u05e0\u05d5\u05d9'))P('categorize netflix'); else F('categorize netflix',c.n);}catch(e){F('categorize netflix',e.message);}
+
+  // T7: parseMsg detection - real invoice
+  try{
+    const msg={payload:{headers:[{name:'From',value:'orders@amazon.com'},{name:'Subject',value:'Your order has been confirmed - \u20aa249'},{name:'Date',value:'Mon, 1 Jan 2024 10:00:00'}]},snippet:'\u05e1\u05d4"\u05db \u20aa249.00'};
+    const inv=parseMsg(msg);
+    if(inv&&inv.amount===249)P('parseMsg - \u05d0\u05d9\u05ea\u05d5\u05e8 + \u05e1\u05db\u05d5\u05dd'); else F('parseMsg - \u05d0\u05d9\u05ea\u05d5\u05e8 + \u05e1\u05db\u05d5\u05dd',inv?.amount);
+  }catch(e){F('parseMsg',e.message);}
+
+  // T8: parseMsg - not invoice
+  try{
+    const msg={payload:{headers:[{name:'From',value:'friend@gmail.com'},{name:'Subject',value:'Hey how are you?'},{name:'Date',value:'Mon, 1 Jan 2024 10:00:00'}]},snippet:'Just saying hi'};
+    if(!parseMsg(msg))P('parseMsg - \u05d3\u05d7\u05d9\u05d9\u05ea \u05de\u05d9\u05d9\u05dc \u05e8\u05d2\u05d9\u05dc'); else F('parseMsg - \u05d3\u05d7\u05d9\u05d9\u05ea \u05de\u05d9\u05d9\u05dc \u05e8\u05d2\u05d9\u05dc','should be null');
+  }catch(e){F('parseMsg \u05e8\u05d2\u05d9\u05dc',e.message);}
+
+  // T9: N formatting
+  try{if(N(1234567)==='1,234,567')P('N() \u05e4\u05d5\u05e8\u05de\u05d8'); else F('N() \u05e4\u05d5\u05e8\u05de\u05d8',N(1234567));}catch(e){F('N()',e.message);}
+
+  // T10: FD date format
+  try{const d=new Date('2024-03-15');const f=FD(d);if(f&&f.includes('15')&&f.includes('03'))P('FD() \u05ea\u05d0\u05e8\u05d9\u05da'); else F('FD()',f);}catch(e){F('FD()',e.message);}
+
+  // T11: Filter by search
+  try{
+    invoices=[
+      {id:'1',sender:'Amazon',from:'a@a',subject:'Invoice \u20aa150',date:new Date(),amount:150,amtSource:'subject',snippet:'',category:'\u05e7\u05e0\u05d9\u05d5\u05ea',catIcon:'',catColor:'#f59e0b'},
+      {id:'2',sender:'Netflix',from:'n@n',subject:'Sub \u20aa47',date:new Date(),amount:47,amtSource:'subject',snippet:'',category:'\u05de\u05e0\u05d5\u05d9',catIcon:'',catColor:'#7c3aed'},
+    ];
+    filtered=[...invoices];activeMonth=null;
+    document.getElementById('srch').value='amazon';
+    document.getElementById('fcats').value='';
+    document.getElementById('famts').value='';
+    document.getElementById('fsort').value='date-d';
+    applyFilters();
+    if(filtered.length===1&&filtered[0].sender==='Amazon')P('\u05e1\u05d9\u05e0\u05d5\u05df \u05d8\u05e7\u05e1\u05d8'); else F('\u05e1\u05d9\u05e0\u05d5\u05df \u05d8\u05e7\u05e1\u05d8',filtered.length);
+    invoices=[];filtered=[];document.getElementById('srch').value='';
+  }catch(e){F('\u05e1\u05d9\u05e0\u05d5\u05df',e.message);}
+
+  // T12: Filter by amount range
+  try{
+    invoices=[
+      {id:'1',sender:'A',from:'',subject:'',date:new Date(),amount:150,amtSource:'s',snippet:'',category:'\u05d0',catIcon:'',catColor:''},
+      {id:'2',sender:'B',from:'',subject:'',date:new Date(),amount:600,amtSource:'s',snippet:'',category:'\u05d0',catIcon:'',catColor:''},
+    ];
+    filtered=[...invoices];activeMonth=null;
+    document.getElementById('srch').value='';
+    document.getElementById('fcats').value='';
+    document.getElementById('famts').value='50-200';
+    document.getElementById('fsort').value='date-d';
+    applyFilters();
+    if(filtered.length===1&&filtered[0].amount===150)P('\u05e4\u05d9\u05dc\u05d8\u05e8 \u05d8\u05d5\u05d5\u05d7 \u05e1\u05db\u05d5\u05dd'); else F('\u05e4\u05d9\u05dc\u05d8\u05e8 \u05d8\u05d5\u05d5\u05d7',filtered.length);
+    invoices=[];filtered=[];document.getElementById('famts').value='';
+  }catch(e){F('\u05e4\u05d9\u05dc\u05d8\u05e8 \u05d8\u05d5\u05d5\u05d7',e.message);}
+
+  // Summary
+  const pass=R.filter(r=>r.ok).length;
+  console.group('%c InvoiceBox Tests','color:#00e5ff;font-weight:700;font-size:14px');
+  console.log(`%c ${pass}/${R.length} \u05e2\u05d1\u05e8\u05d5 \u2714`,'color:#00ffa3;font-weight:700');
+  R.forEach(r=>r.ok
+    ? console.log(`%c \u2713 ${r.n}`,'color:#00ffa3')
+    : console.error(`\u2717 ${r.n}: ${r.e}`)
+  );
+  console.groupEnd();
+  if(pass<R.length) console.warn(`%c ${R.length-pass} \u05d8\u05e1\u05d8\u05d9\u05dd \u05e0\u05db\u05e9\u05dc\u05d5`,'color:#ff4d6d;font-weight:700');
+  return R;
+}
+
+setTimeout(runTests,800);
+</script>
+</body>
+</html>
