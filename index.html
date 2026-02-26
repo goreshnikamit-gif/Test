@@ -538,58 +538,68 @@ let aiProcessed=0, aiTotal=0;
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 function loadJS(src){
   return new Promise((resolve,reject)=>{
-    // If already loaded, resolve immediately
     if(src.includes('api.js')&&typeof gapi!=='undefined'){resolve();return;}
-    if(src.includes('gsi')&&typeof google!=='undefined'&&google.accounts){resolve();return;}
+    if(src.includes('gsi')&&typeof google!=='undefined'&&google?.accounts){resolve();return;}
+    // Check if script tag already exists
+    if(document.querySelector('script[src="'+src+'"]')){
+      // Wait a bit for it to finish loading
+      setTimeout(resolve,500);
+      return;
+    }
     const s=document.createElement('script');
     s.src=src;
-    s.onload=()=>resolve();
-    s.onerror=()=>reject(new Error('Failed to load: '+src));
+    s.async=true;
+    s.onload=()=>{console.log('[loadJS] loaded:',src);resolve();};
+    s.onerror=(e)=>{console.error('[loadJS] error:',src,e);reject(new Error('\u05e0\u05db\u05e9\u05dc \u05dc\u05d8\u05e2\u05d5\u05df: '+src));};
     document.head.appendChild(s);
   });
 }
 
 async function startAuth(){
   showScr('loading');
-  setStatus('\u05d8\u05d5\u05e2\u05df Google API...');
+  const dbg=(msg)=>{console.log('[Auth]',msg);setStatus(msg);};
   try{
-    // Step 1: Load GAPI
-    setStatus('\u05d8\u05d5\u05e2\u05df gapi...');
+    dbg('\u05d8\u05d5\u05e2\u05df gapi...');
     await loadJS('https://apis.google.com/js/api.js');
-    if(typeof gapi==='undefined') throw new Error('gapi \u05dc\u05d0 \u05e0\u05d8\u05e2\u05df');
+    dbg('gapi \u05e0\u05d8\u05e2\u05df: '+(typeof gapi));
+    if(typeof gapi==='undefined') throw new Error('gapi \u05dc\u05d0 \u05e0\u05d8\u05e2\u05df - \u05d1\u05d3\u05d5\u05e7 \u05d7\u05d9\u05d1\u05d5\u05e8 \u05d0\u05d9\u05e0\u05d8\u05e8\u05e0\u05d8');
 
-    // Step 2: Load gapi.client
-    setStatus('\u05d8\u05d5\u05e2\u05df gapi.client...');
+    dbg('\u05d8\u05d5\u05e2\u05df gapi.client...');
     await new Promise((res,rej)=>{
-      gapi.load('client',{callback:res,onerror:()=>rej(new Error('gapi.load \u05e0\u05db\u05e9\u05dc'))});
+      gapi.load('client',{callback:()=>{dbg('gapi.client OK');res();},onerror:(e)=>rej(new Error('gapi.load \u05e0\u05db\u05e9\u05dc: '+JSON.stringify(e)))});
     });
 
-    // Step 3: Load GSI
-    setStatus('\u05d8\u05d5\u05e2\u05df Google Sign-In...');
+    dbg('\u05d8\u05d5\u05e2\u05df GSI...');
     await loadJS('https://accounts.google.com/gsi/client');
+    dbg('google: '+(typeof google)+', accounts: '+(typeof google?.accounts));
     if(typeof google==='undefined'||!google.accounts) throw new Error('GSI \u05dc\u05d0 \u05e0\u05d8\u05e2\u05df');
 
-    // Step 4: Init client
-    setStatus('\u05de\u05d0\u05ea\u05d7\u05dc \u05d7\u05d9\u05d1\u05d5\u05e8...');
+    dbg('\u05d0\u05ea\u05d7\u05d5\u05dc \u05d2\u05de\u05d9\u05d9\u05dc API...');
     await gapi.client.init({discoveryDocs:[DISC]});
+    dbg('\u05d2\u05de\u05d9\u05d9\u05dc API \u05de\u05d5\u05db\u05df');
 
-    // Step 5: Request token
-    setStatus('\u05e4\u05d5\u05ea\u05d7 \u05d7\u05dc\u05d5\u05df \u05d4\u05ea\u05d7\u05d1\u05e8\u05d5\u05ea...');
+    dbg('\u05e4\u05d5\u05ea\u05d7 \u05d7\u05dc\u05d5\u05df \u05d4\u05ea\u05d7\u05d1\u05e8\u05d5\u05ea Google...');
     const tc=google.accounts.oauth2.initTokenClient({
-      client_id:CID, scope:SCOPES,
+      client_id:CID,scope:SCOPES,
       callback:async r=>{
+        console.log('[Auth] callback:',r);
         if(r.error){
           showScr('auth');
-          toast('error','\u274c \u05e9\u05d2\u05d9\u05d0\u05ea \u05d0\u05d9\u05de\u05d5\u05ea: '+r.error);
+          // Show specific error message on screen
+          const errMsg = r.error==='popup_blocked_by_browser'?'\u05d7\u05dc\u05d5\u05df \u05e0\u05d7\u05e1\u05dd - \u05d0\u05e4\u05e9\u05e8 \u05d7\u05dc\u05d5\u05e0\u05d5\u05ea \u05d1\u05d3\u05e4\u05d3\u05e4\u05df':
+                          r.error==='access_denied'?'\u05d2\u05d9\u05e9\u05d4 \u05e0\u05d3\u05d7\u05ea\u05d4 - \u05d5\u05d3\u05d0 \u05e9\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05e9\u05dc\u05da \u05d1\u05e8\u05e9\u05d9\u05de\u05ea \u05d4\u05d1\u05d5\u05d3\u05e7\u05d9\u05dd':
+                          r.error;
+          toast('error','\u274c '+errMsg);
           return;
         }
+        dbg('\u05de\u05d7\u05d5\u05d1\u05e8! \u05de\u05ea\u05d7\u05d9\u05dc \u05e1\u05e8\u05d9\u05e7\u05d4...');
         await scan();
       }
     });
-    tc.requestAccessToken();
+    tc.requestAccessToken({prompt:'select_account'});
 
   }catch(e){
-    console.error('Auth error:',e);
+    console.error('[Auth] ERROR:',e);
     showScr('auth');
     toast('error','\u274c '+e.message);
   }
