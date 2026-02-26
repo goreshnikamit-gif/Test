@@ -607,55 +607,44 @@ async function scan(){
 // AI ENRICHMENT \u2014 Uses Claude API to extract amounts
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 async function aiEnrichBatch(invs){
-  // Process in small batches to not overload
-  const ABATCH = 5;
+  const ABATCH=3, TIMEOUT=6000;
   for(let i=0;i<invs.length;i+=ABATCH){
-    const batch = invs.slice(i,i+ABATCH);
-    await Promise.all(batch.map(inv => aiExtract(inv)));
-    const done = Math.min(i+ABATCH, invs.length);
-    document.getElementById('ai-status').textContent = `\ud83e\udd16 AI: \u05e2\u05d9\u05d1\u05d3 ${done}/${invs.length}`;
-    await new Promise(r=>setTimeout(r,100));
+    const batch=invs.slice(i,i+ABATCH);
+    await Promise.race([
+      Promise.all(batch.map(inv=>aiExtract(inv))),
+      new Promise(r=>setTimeout(r,TIMEOUT))
+    ]);
+    const done=Math.min(i+ABATCH,invs.length);
+    const el=document.getElementById('ai-status');
+    if(el) el.textContent='\ud83e\udd16 AI: \u05e2\u05d9\u05d1\u05d3 '+done+'/'+invs.length;
+    await new Promise(r=>setTimeout(r,50));
   }
-  document.getElementById('ai-status').textContent = '';
+  const el=document.getElementById('ai-status');
+  if(el) el.textContent='';
 }
 
 async function aiExtract(inv){
   try{
-    const prompt = `You are an invoice amount extractor. Given the following email subject and snippet, extract the payment amount.
-
-Subject: ${inv.subject}
-Snippet: ${inv.snippet||''}
-Sender: ${inv.from}
-
-Rules:
-- Return ONLY a JSON object: {"amount": number_or_null, "currency": "ILS/USD/EUR/null", "confidence": 0-100}
-- amount should be a number (e.g. 149.9) or null if not found
-- Prefer ILS amounts, then USD, then EUR
-- Ignore tax amounts separately, return the total/charged amount
-- If amount is clearly present, confidence should be 80-100
-- Do NOT include any explanation`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),5000);
+    const prompt='Extract invoice amount. JSON only: {"amount":number_or_null,"currency":"ILS/USD/EUR"}\n\nSubject: '+inv.subject+'\nSnippet: '+(inv.snippet||'')+'\nSender: '+inv.from;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',signal:ctrl.signal,
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:100,
-        messages:[{role:'user',content:prompt}]
-      })
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:50,
+        messages:[{role:'user',content:prompt}]})
     });
+    clearTimeout(tid);
     if(!res.ok) return;
-    const data = await res.json();
-    const text = data.content?.[0]?.text||'';
-    // Parse JSON from response
-    const cleaned = text.replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(cleaned);
-    if(parsed.amount && parsed.amount > 0 && parsed.amount < 999999){
-      inv.amount = Math.round(parsed.amount*100)/100;
-      inv.amtSource = 'ai';
-      inv.aiConfidence = parsed.confidence||50;
+    const data=await res.json();
+    if(data.error) return;
+    const text=(data.content?.[0]?.text||'').replace(/```json|```/g,'').trim();
+    const parsed=JSON.parse(text);
+    if(parsed.amount&&parsed.amount>0&&parsed.amount<999999){
+      inv.amount=Math.round(parsed.amount*100)/100;
+      inv.amtSource='ai';inv.aiConfidence=80;
     }
-  }catch(e){/* silently fail */}
+  }catch(e){}
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
