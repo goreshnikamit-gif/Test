@@ -536,24 +536,63 @@ let aiProcessed=0, aiTotal=0;
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 // AUTH
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-function loadJS(src){return new Promise(r=>{const s=document.createElement('script');s.src=src;s.onload=r;document.head.appendChild(s);})}
+function loadJS(src){
+  return new Promise((resolve,reject)=>{
+    // If already loaded, resolve immediately
+    if(src.includes('api.js')&&typeof gapi!=='undefined'){resolve();return;}
+    if(src.includes('gsi')&&typeof google!=='undefined'&&google.accounts){resolve();return;}
+    const s=document.createElement('script');
+    s.src=src;
+    s.onload=()=>resolve();
+    s.onerror=()=>reject(new Error('Failed to load: '+src));
+    document.head.appendChild(s);
+  });
+}
 
 async function startAuth(){
-  showScr('loading'); setStatus('\u05d8\u05d5\u05e2\u05df Google API...');
+  showScr('loading');
+  setStatus('\u05d8\u05d5\u05e2\u05df Google API...');
   try{
+    // Step 1: Load GAPI
+    setStatus('\u05d8\u05d5\u05e2\u05df gapi...');
     await loadJS('https://apis.google.com/js/api.js');
-    await new Promise(r=>gapi.load('client',r));
+    if(typeof gapi==='undefined') throw new Error('gapi \u05dc\u05d0 \u05e0\u05d8\u05e2\u05df');
+
+    // Step 2: Load gapi.client
+    setStatus('\u05d8\u05d5\u05e2\u05df gapi.client...');
+    await new Promise((res,rej)=>{
+      gapi.load('client',{callback:res,onerror:()=>rej(new Error('gapi.load \u05e0\u05db\u05e9\u05dc'))});
+    });
+
+    // Step 3: Load GSI
+    setStatus('\u05d8\u05d5\u05e2\u05df Google Sign-In...');
     await loadJS('https://accounts.google.com/gsi/client');
+    if(typeof google==='undefined'||!google.accounts) throw new Error('GSI \u05dc\u05d0 \u05e0\u05d8\u05e2\u05df');
+
+    // Step 4: Init client
+    setStatus('\u05de\u05d0\u05ea\u05d7\u05dc \u05d7\u05d9\u05d1\u05d5\u05e8...');
     await gapi.client.init({discoveryDocs:[DISC]});
+
+    // Step 5: Request token
+    setStatus('\u05e4\u05d5\u05ea\u05d7 \u05d7\u05dc\u05d5\u05df \u05d4\u05ea\u05d7\u05d1\u05e8\u05d5\u05ea...');
     const tc=google.accounts.oauth2.initTokenClient({
-      client_id:CID,scope:SCOPES,
+      client_id:CID, scope:SCOPES,
       callback:async r=>{
-        if(r.error){showScr('auth');toast('error','\u274c '+r.error);return;}
+        if(r.error){
+          showScr('auth');
+          toast('error','\u274c \u05e9\u05d2\u05d9\u05d0\u05ea \u05d0\u05d9\u05de\u05d5\u05ea: '+r.error);
+          return;
+        }
         await scan();
       }
     });
     tc.requestAccessToken();
-  }catch(e){showScr('auth');toast('error','\u274c '+e.message);}
+
+  }catch(e){
+    console.error('Auth error:',e);
+    showScr('auth');
+    toast('error','\u274c '+e.message);
+  }
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
