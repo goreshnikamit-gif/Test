@@ -971,7 +971,7 @@ async function scanEmails() {
       gapi.client.gmail.users.messages.get({
         userId: 'me',
         id,
-        format: 'metadata',
+        format: 'full',
         metadataHeaders: ['From', 'Subject', 'Date'],
       }).then(r => r.result).catch(() => null)
     );
@@ -1022,11 +1022,13 @@ function parseMessage(msg) {
   const senderMatch = from.match(/^"?([^"<]+)"?\s*</);
   const senderName = senderMatch ? senderMatch[1].trim() : from.split('@')[0] || from;
 
-  // Extract amount from subject
+  // Extract amount from subject + snippet
   let amount = null;
+  const snippet = msg.snippet || '';
+  const searchText = subject + ' ' + snippet;
   for (const pattern of AMOUNT_PATTERNS) {
     pattern.lastIndex = 0;
-    const m = pattern.exec(subject);
+    const m = pattern.exec(searchText);
     if (m) {
       const val = parseFloat(m[1].replace(/,/g, ''));
       if (val > 0 && val < 1000000) { amount = val; break; }
