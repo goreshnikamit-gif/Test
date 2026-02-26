@@ -1031,7 +1031,7 @@ function buildCharts(){
       animation:{duration:700}}
   });
   document.getElementById('clegend').innerHTML=ents.map(([k,v])=>`
-    <div class="citem" onclick="filterByCat('${k}')">
+    <div class="citem" onclick="filterByCat('${k}')" title="\u05dc\u05d7\u05e5 \u05dc\u05e1\u05e0\u05df">
       <div class="cleft"><div class="cdot" style="background:${catC[k]||'#64748b'}"></div><span class="cn">${k}</span></div>
       <div class="cright"><span class="cpct">${(v/totalAmt*100).toFixed(1)}%</span><span class="cval">\u20aa${N(v)}</span></div>
     </div>`).join('');
@@ -1042,8 +1042,8 @@ function buildCharts(){
   const vmax=top[0]?.[1]||1;
   const vc=['#00e5ff','#7c3aed','#00ffa3','#ff6b35','#ffd93d','#ff4d6d','#a78bff','#34d399'];
   document.getElementById('vlist').innerHTML=top.map(([n,a],i)=>`
-    <div class="vi">
-      <div class="vm"><span class="vn">${n}</span><span class="va">\u20aa${N(a)}</span></div>
+    <div class="vi" onclick="filterBySender('${n.replace(/'/g,'\\'')}')" style="cursor:pointer;border-radius:8px;padding:4px 6px;margin:-4px -6px;transition:background .15s" onmouseover="this.style.background='rgba(0,229,255,0.05)'" onmouseout="this.style.background='transparent'">
+      <div class="vm"><span class="vn">${n}</span><span class="va" style="display:flex;align-items:center;gap:6px">\u20aa${N(a)}<span style="font-size:9px;opacity:.5">\u25b6</span></span></div>
       <div class="vtrack"><div class="vfill" style="width:${(a/vmax*100).toFixed(1)}%;background:${vc[i]};box-shadow:0 0 6px ${vc[i]}44"></div></div>
     </div>`).join('');
 
@@ -1107,6 +1107,21 @@ function filterByCat(cat){
   document.getElementById('fcats').value=cat;
   applyFilters();
   document.getElementById('tbody').scrollIntoView({behavior:'smooth'});
+}
+
+function filterBySender(sender){
+  // Clear other filters, set search to sender name
+  document.getElementById('srch').value=sender;
+  document.getElementById('fcats').value='';
+  document.getElementById('famts').value='';
+  document.getElementById('fsort').value='date-d';
+  activeMonth=null;
+  document.querySelectorAll('.mchip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('.mchip').classList.add('active');
+  applyFilters();
+  // Scroll to table smoothly
+  setTimeout(()=>document.getElementById('tbody').closest('.tcard').scrollIntoView({behavior:'smooth',block:'start'}),100);
+  toast('info','\u05de\u05e6\u05d9\u05d2 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05e9\u05dc '+sender);
 }
 
 function applyFilters(){
