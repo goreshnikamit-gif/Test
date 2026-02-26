@@ -448,37 +448,29 @@ const KW = [
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 // AMOUNT EXTRACTION \u2014 20+ patterns
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
-const APATS = [
-  // Shekel explicit
-  /\u20aa\s*([\d,]+(?:\.\d{1,2})?)/g,
-  /([\d,]+(?:\.\d{1,2})?)\s*\u20aa/g,
-  /ILS\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /([\d,]+(?:\.\d{1,2})?)\s*ILS/gi,
-  // USD
-  /\$\s*([\d,]+(?:\.\d{1,2})?)/g,
-  // EUR
-  /\u20ac\s*([\d,]+(?:\.\d{1,2})?)/g,
-  // Labeled totals
-  /total[:\s]+(?:amount[:\s]+)?[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /amount[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /charged[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /subtotal[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /grand total[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /payment[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /due[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /paid[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /price[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /cost[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  // Hebrew labels
-  /\u05e1\u05d4"\u05db[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  /\u05e1\u05db\u05d5\u05dd[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  /\u05d7\u05d5\u05d9\u05d9\u05d1[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  /\u05de\u05d7\u05d9\u05e8[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  /\u05e1\u05da \u05d4\u05db\u05dc[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  /\u05dc\u05ea\u05e9\u05dc\u05d5\u05dd[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  // Bare number after currency words in subject
-  /(?:subscription|plan|renewal|membership)\s+(?:of\s+)?[\$\u20aa\u20ac]([\d,]+(?:\.\d{1,2})?)/gi,
-  /(?:\u05de\u05e0\u05d5\u05d9|\u05ea\u05e9\u05dc\u05d5\u05dd)\s+(?:\u05e9\u05dc\s+)?([\d,]+(?:\.\d{1,2})?)\s*[\u20aa\u05e9\u05e7\u05dc]/g,
+// Amount patterns organized in TIERS (high confidence first)
+// TIER 1: Currency symbol DIRECTLY adjacent to number \u2014 very reliable
+const APATS_T1 = [
+  /[\u20aa]\s*([\d,]{1,6}(?:\.\d{1,2})?)/g,           // \u20aa149.90
+  /([\d,]{1,6}(?:\.\d{1,2})?)\s*[\u20aa]/g,           // 149.90\u20aa
+  /ILS\s*([\d,]{1,6}(?:\.\d{1,2})?)/gi,               // ILS 149
+  /\$\s*([\d]{1,4}(?:\.\d{1,2})?)/g,                  // $49.90 (cap at 4 digits to avoid IDs)
+  /\u20ac\s*([\d]{1,4}(?:\.\d{1,2})?)/g,              // \u20ac49.90
+];
+// TIER 2: Labeled amounts \u2014 reliable only with specific keywords
+const APATS_T2 = [
+  /(?:total|grand total|amount due|amount paid|you paid|you were charged)[:\s]+[\$\u20aa\u20ac]?\s*([\d,]{1,6}(?:\.\d{1,2})?)/gi,
+  /(?:charged to|billed amount|invoice total|order total)[:\s]+[\$\u20aa\u20ac]?\s*([\d,]{1,6}(?:\.\d{1,2})?)/gi,
+  /\u05e1\u05d4"\u05db[:\s]+([\d,]{1,6}(?:\.\d{1,2})?)/g,
+  /\u05e1\u05da \u05d4\u05db\u05dc[:\s]+([\d,]{1,6}(?:\.\d{1,2})?)/g,
+  /\u05d7\u05d5\u05d9\u05d9\u05d1[:\s]+([\d,]{1,6}(?:\.\d{1,2})?)/g,
+  /\u05e1\u05db\u05d5\u05dd \u05dc\u05ea\u05e9\u05dc\u05d5\u05dd[:\s]+([\d,]{1,6}(?:\.\d{1,2})?)/g,
+];
+// TIER 3: Less reliable \u2014 only use if nothing found above
+const APATS_T3 = [
+  /(?:subtotal|price|plan price)[:\s]+[\$\u20aa\u20ac]?\s*([\d,]{1,5}(?:\.\d{1,2})?)/gi,
+  /(?:paid|payment)[:\s]+[\$\u20aa\u20ac]?\s*([\d,]{1,5}(?:\.\d{1,2})?)/gi,
+  /\u05de\u05d7\u05d9\u05e8[:\s]+([\d,]{1,5}(?:\.\d{1,2})?)/g,
 ];
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -607,44 +599,55 @@ async function scan(){
 // AI ENRICHMENT \u2014 Uses Claude API to extract amounts
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 async function aiEnrichBatch(invs){
-  const ABATCH=3, TIMEOUT=6000;
+  // Process in small batches to not overload
+  const ABATCH = 5;
   for(let i=0;i<invs.length;i+=ABATCH){
-    const batch=invs.slice(i,i+ABATCH);
-    await Promise.race([
-      Promise.all(batch.map(inv=>aiExtract(inv))),
-      new Promise(r=>setTimeout(r,TIMEOUT))
-    ]);
-    const done=Math.min(i+ABATCH,invs.length);
-    const el=document.getElementById('ai-status');
-    if(el) el.textContent='\ud83e\udd16 AI: \u05e2\u05d9\u05d1\u05d3 '+done+'/'+invs.length;
-    await new Promise(r=>setTimeout(r,50));
+    const batch = invs.slice(i,i+ABATCH);
+    await Promise.all(batch.map(inv => aiExtract(inv)));
+    const done = Math.min(i+ABATCH, invs.length);
+    document.getElementById('ai-status').textContent = `\ud83e\udd16 AI: \u05e2\u05d9\u05d1\u05d3 ${done}/${invs.length}`;
+    await new Promise(r=>setTimeout(r,100));
   }
-  const el=document.getElementById('ai-status');
-  if(el) el.textContent='';
+  document.getElementById('ai-status').textContent = '';
 }
 
 async function aiExtract(inv){
   try{
-    const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),5000);
-    const prompt='Extract invoice amount. JSON only: {"amount":number_or_null,"currency":"ILS/USD/EUR"}\n\nSubject: '+inv.subject+'\nSnippet: '+(inv.snippet||'')+'\nSender: '+inv.from;
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',signal:ctrl.signal,
+    const prompt = `You are an invoice amount extractor. Given the following email subject and snippet, extract the payment amount.
+
+Subject: ${inv.subject}
+Snippet: ${inv.snippet||''}
+Sender: ${inv.from}
+
+Rules:
+- Return ONLY a JSON object: {"amount": number_or_null, "currency": "ILS/USD/EUR/null", "confidence": 0-100}
+- amount should be a number (e.g. 149.9) or null if not found
+- Prefer ILS amounts, then USD, then EUR
+- Ignore tax amounts separately, return the total/charged amount
+- If amount is clearly present, confidence should be 80-100
+- Do NOT include any explanation`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:50,
-        messages:[{role:'user',content:prompt}]})
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:100,
+        messages:[{role:'user',content:prompt}]
+      })
     });
-    clearTimeout(tid);
     if(!res.ok) return;
-    const data=await res.json();
-    if(data.error) return;
-    const text=(data.content?.[0]?.text||'').replace(/```json|```/g,'').trim();
-    const parsed=JSON.parse(text);
-    if(parsed.amount&&parsed.amount>0&&parsed.amount<999999){
-      inv.amount=Math.round(parsed.amount*100)/100;
-      inv.amtSource='ai';inv.aiConfidence=80;
+    const data = await res.json();
+    const text = data.content?.[0]?.text||'';
+    // Parse JSON from response
+    const cleaned = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(cleaned);
+    if(parsed.amount && parsed.amount > 0 && parsed.amount < 999999){
+      inv.amount = Math.round(parsed.amount*100)/100;
+      inv.amtSource = 'ai';
+      inv.aiConfidence = parsed.confidence||50;
     }
-  }catch(e){}
+  }catch(e){/* silently fail */}
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -702,27 +705,62 @@ function extractAmount(subj, snippet, payload){
 
 function searchAmtPatterns(text){
   if(!text) return null;
-  const candidates=[];
-  for(const pat of APATS){
+
+  // Helper: is this number plausibly a real amount?
+  function plausible(v){
+    if(v < 0.5)   return false;          // too small
+    if(v > 50000) return false;          // too large for single invoice
+    // Reject common false positives
+    if(v===2024||v===2025||v===2026||v===2023||v===2022) return false; // years
+    if(Number.isInteger(v) && v >= 1000 && String(v).length >= 5 && !text.includes('\u20aa'+v) && !text.includes(v+'\u20aa')) return false; // 5-digit integers without currency symbol = likely IDs
+    if(v===100||v===1000) return false;  // suspiciously round, skip unless currency-tagged
+    return true;
+  }
+
+  // Try TIER 1 first \u2014 currency symbol adjacent
+  for(const pat of APATS_T1){
     pat.lastIndex=0;
+    const candidates=[];
     let m;
     while((m=pat.exec(text))!==null){
       const v=parseFloat(m[1].replace(/,/g,''));
-      if(v>0.5 && v<999999) candidates.push(v);
+      if(plausible(v)) candidates.push(v);
+    }
+    if(candidates.length){
+      // Among T1 hits, prefer the LARGEST that has decimals (more likely to be a real price)
+      const withDec = candidates.filter(v=>!Number.isInteger(v));
+      if(withDec.length) return Math.round(Math.max(...withDec)*100)/100;
+      return Math.round(Math.max(...candidates)*100)/100;
     }
   }
-  if(!candidates.length) return null;
-  // Smart selection: prefer amounts that look like totals (not quantities, not years)
-  const filtered=candidates.filter(v=>{
-    if(v===2024||v===2025||v===2026||v===2023) return false; // years
-    if(v<0.5) return false;
-    if(Number.isInteger(v) && v>9999 && v<99999) return false; // order numbers
-    return true;
-  });
-  if(!filtered.length) return null;
-  // Return max reasonable amount as it's likely the total
-  const sorted=filtered.sort((a,b)=>b-a);
-  return Math.round(sorted[0]*100)/100;
+
+  // Try TIER 2 \u2014 labeled totals
+  for(const pat of APATS_T2){
+    pat.lastIndex=0;
+    const candidates=[];
+    let m;
+    while((m=pat.exec(text))!==null){
+      const v=parseFloat(m[1].replace(/,/g,''));
+      if(plausible(v)) candidates.push(v);
+    }
+    if(candidates.length) return Math.round(Math.max(...candidates)*100)/100;
+  }
+
+  // Try TIER 3 \u2014 only if text is short (subject line) to avoid false positives in body
+  if(text.length < 200){
+    for(const pat of APATS_T3){
+      pat.lastIndex=0;
+      const candidates=[];
+      let m;
+      while((m=pat.exec(text))!==null){
+        const v=parseFloat(m[1].replace(/,/g,''));
+        if(plausible(v)) candidates.push(v);
+      }
+      if(candidates.length) return Math.round(Math.max(...candidates)*100)/100;
+    }
+  }
+
+  return null;
 }
 
 function extractBody(payload){
