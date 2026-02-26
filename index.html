@@ -1,1 +1,1254 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InvoiceBox \u2014 \u05e1\u05d5\u05e8\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea Gmail</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #111827;
+    --bg3: #1a2235;
+    --card: #141d2e;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --danger: #ef4444;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --font: 'Rubik', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
 
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-1 { top: -200px; right: -100px; background: rgba(0,212,255,0.08); }
+  .glow-2 { bottom: -200px; left: -100px; background: rgba(124,58,237,0.08); }
+
+  /* ====== AUTH SCREEN ====== */
+  #auth-screen {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 32px;
+    padding: 40px 20px;
+  }
+
+  .logo {
+    text-align: center;
+  }
+  .logo-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 40px rgba(0,212,255,0.3);
+  }
+  .logo h1 {
+    font-size: 36px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+  }
+  .logo p {
+    color: var(--muted);
+    font-size: 15px;
+    margin-top: 8px;
+  }
+
+  .auth-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .auth-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .auth-card p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 28px;
+  }
+
+  .setup-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    text-align: right;
+  }
+  .setup-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .setup-field input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .setup-field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+  }
+  .setup-field small {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: var(--font);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .how-link {
+    display: block;
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .how-link:hover { color: var(--accent); }
+
+  .how-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+    text-align: right;
+    display: none;
+  }
+  .how-box.open { display: block; }
+  .how-box ol {
+    padding-right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .how-box li {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .how-box li a { color: var(--accent); }
+
+  /* ====== LOADING SCREEN ====== */
+  #loading-screen {
+    position: fixed; inset: 0; z-index: 100;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .scan-animation {
+    width: 120px;
+    height: 120px;
+    position: relative;
+  }
+  .scan-animation::before {
+    content: '\ud83d\udce7';
+    font-size: 48px;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .scan-ring {
+    position: absolute;
+    inset: 0;
+    border: 2px solid transparent;
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .scan-ring:nth-child(2) {
+    inset: 10px;
+    border-top-color: var(--accent2);
+    animation-duration: 1.4s;
+    animation-direction: reverse;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #loading-screen h2 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+  #scan-status {
+    color: var(--muted);
+    font-size: 14px;
+    font-family: var(--mono);
+  }
+  .progress-bar {
+    width: 320px;
+    height: 4px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  /* ====== DASHBOARD ====== */
+  #dashboard {
+    position: relative;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .dash-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .dash-title .logo-icon { width: 44px; height: 44px; font-size: 20px; margin: 0; border-radius: 12px; }
+  .dash-title h1 { font-size: 24px; font-weight: 900; }
+  .dash-title span { color: var(--muted); font-size: 13px; }
+
+  .dash-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-sm {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-ghost {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-accent {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+  .btn-accent:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ====== STATS GRID ====== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.blue::before { background: var(--accent); }
+  .stat-card.purple::before { background: var(--accent2); }
+  .stat-card.green::before { background: var(--accent3); }
+  .stat-card.yellow::before { background: var(--accent4); }
+  .stat-card.red::before { background: var(--danger); }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: var(--mono);
+    letter-spacing: -1px;
+  }
+  .stat-card.blue .stat-value { color: var(--accent); }
+  .stat-card.purple .stat-value { color: var(--accent2); }
+  .stat-card.green .stat-value { color: var(--accent3); }
+  .stat-card.yellow .stat-value { color: var(--accent4); }
+  .stat-card.red .stat-value { color: var(--danger); }
+  .stat-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ====== CHARTS ====== */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  @media(max-width: 900px) {
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .chart-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chart-title span { font-size: 18px; }
+
+  /* ====== FILTERS ====== */
+  .filters-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filter-input:focus { border-color: var(--accent); }
+  .filter-input option { background: var(--bg2); }
+
+  /* ====== TABLE ====== */
+  .table-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    background: var(--bg3);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  thead th:hover { color: var(--accent); }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: rgba(0,212,255,0.03); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 14px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .td-sender {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-green { background: rgba(16,185,129,0.15); color: var(--accent3); }
+  .badge-blue { background: rgba(0,212,255,0.15); color: var(--accent); }
+  .badge-yellow { background: rgba(245,158,11,0.15); color: var(--accent4); }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .badge-purple { background: rgba(124,58,237,0.15); color: var(--accent2); }
+
+  .amount-cell {
+    font-family: var(--mono);
+    font-weight: 700;
+  }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .page-btns {
+    display: flex;
+    gap: 6px;
+  }
+  .page-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .page-btn:hover, .page-btn.active { border-color: var(--accent); color: var(--accent); }
+
+  /* ====== TOP VENDORS ====== */
+  .vendor-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .vendor-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .vendor-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  .vendor-name { font-weight: 600; }
+  .vendor-amount { font-family: var(--mono); color: var(--accent); font-weight: 700; }
+  .vendor-track {
+    height: 6px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .vendor-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 1s ease;
+  }
+
+  /* ====== TOASTS ====== */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .toast {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .toast.success { border-color: var(--accent3); }
+  .toast.error { border-color: var(--danger); }
+
+  .hidden { display: none !important; }
+
+  /* Monthly summary strip */
+  .month-strip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 24px;
+    scrollbar-width: thin;
+  }
+  .month-chip {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    min-width: 80px;
+  }
+  .month-chip:hover, .month-chip.active {
+    border-color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    color: var(--accent);
+  }
+  .month-chip .chip-month { display: block; }
+  .month-chip .chip-amount { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="logo">
+    <div class="logo-icon">\ud83d\udcec</div>
+    <h1>InvoiceBox</h1>
+    <p>\u05e1\u05d5\u05e8\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05d7\u05db\u05dd \u05dc\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc \u05e9\u05dc\u05da</p>
+  </div>
+
+  <div class="auth-card">
+    <h2>\ud83d\udd11 \u05d7\u05d9\u05d1\u05d5\u05e8 \u05dc\u05d2\u05d5\u05d2\u05dc</h2>
+    <p>\u05d4\u05d6\u05df \u05d0\u05ea \u05d4-Client ID \u05e9\u05dc\u05da \u05de-Google Cloud Console \u05db\u05d3\u05d9 \u05dc\u05d7\u05d1\u05e8 \u05d0\u05ea \u05d4\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc \u05e9\u05dc\u05da \u05d5\u05dc\u05e1\u05e8\u05d5\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05d8\u05d5\u05de\u05d8\u05d9\u05ea.</p>
+
+    <div class="setup-field">
+      <label>Google OAuth Client ID</label>
+      <input type="text" id="client-id-input" placeholder="XXXXXXXXXX-xxxx.apps.googleusercontent.com" />
+      <small>\u05ea\u05de\u05e6\u05d0 \u05d0\u05ea \u05d6\u05d4 \u05d1: console.cloud.google.com \u2192 Credentials \u2192 OAuth 2.0 Client IDs</small>
+    </div>
+
+    <div class="setup-field">
+      <label>\u05d8\u05d5\u05d5\u05d7 \u05e1\u05e8\u05d9\u05e7\u05d4 (\u05d7\u05d5\u05d3\u05e9\u05d9\u05dd \u05d0\u05d7\u05d5\u05e8\u05d4)</label>
+      <input type="number" id="months-back" value="24" min="1" max="120" />
+      <small>\u05db\u05de\u05d4 \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd \u05d0\u05d7\u05d5\u05e8\u05d4 \u05dc\u05e1\u05e8\u05d5\u05e7? (\u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc: 24 \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd)</small>
+    </div>
+
+    <button class="btn-primary" onclick="startAuth()">
+      \ud83d\ude80 \u05d4\u05ea\u05d7\u05d1\u05e8 \u05d5\u05e1\u05e8\u05d5\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea
+    </button>
+
+    <span class="how-link" onclick="toggleHow()">\u2753 \u05d0\u05d9\u05da \u05de\u05e7\u05d1\u05dc\u05d9\u05dd Client ID?</span>
+    <div class="how-box" id="how-box">
+      <ol>
+        <li>\u05d4\u05d9\u05db\u05e0\u05e1 \u05dc-<a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> \u05d5\u05e6\u05d5\u05e8 \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05d7\u05d3\u05e9</li>
+        <li>\u05dc\u05da \u05dc-"APIs & Services" \u2192 "Enable APIs" \u2192 \u05d4\u05e4\u05e2\u05dc \u05d0\u05ea <strong>Gmail API</strong></li>
+        <li>\u05dc\u05da \u05dc-"Credentials" \u2192 "Create Credentials" \u2192 "OAuth 2.0 Client ID"</li>
+        <li>\u05d1\u05d7\u05e8 "Web Application" \u05d5\u05d4\u05d5\u05e1\u05e3 Authorized JS Origins: <code>file://</code> \u05d5-<code>http://localhost</code></li>
+        <li>\u05d4\u05e2\u05ea\u05e7 \u05d0\u05ea \u05d4-Client ID \u05d5\u05d4\u05d3\u05d1\u05e7 \u05dc\u05de\u05e2\u05dc\u05d4</li>
+        <li>\u05dc\u05da \u05dc-"OAuth Consent Screen" \u2192 \u05d4\u05d5\u05e1\u05e3 \u05d0\u05ea \u05d4\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc \u05e9\u05dc\u05da \u05db-Test User</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- DEMO MODE -->
+  <div class="auth-card" style="max-width:480px">
+    <h2>\ud83c\udfae \u05de\u05e6\u05d1 \u05d3\u05de\u05d5</h2>
+    <p>\u05e8\u05d5\u05e6\u05d4 \u05dc\u05e8\u05d0\u05d5\u05ea \u05d0\u05d9\u05da \u05d6\u05d4 \u05e0\u05e8\u05d0\u05d4 \u05d1\u05dc\u05d9 \u05dc\u05d4\u05ea\u05d7\u05d1\u05e8? \u05dc\u05d7\u05e5 \u05db\u05d0\u05df \u05dc\u05d3\u05de\u05d5 \u05e2\u05dd \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05de\u05d3\u05d5\u05de\u05d9\u05dd.</p>
+    <button class="btn-primary" style="background: linear-gradient(135deg, var(--accent3), #059669);" onclick="loadDemo()">
+      \ud83d\udc41\ufe0f \u05d4\u05e6\u05d2 \u05d3\u05de\u05d5
+    </button>
+  </div>
+</div>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen" class="hidden">
+  <div class="scan-animation">
+    <div class="scan-ring"></div>
+    <div class="scan-ring"></div>
+  </div>
+  <h2>\u05e1\u05d5\u05e8\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea...</h2>
+  <div id="scan-status">\u05de\u05ea\u05d7\u05d1\u05e8 \u05dc\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc...</div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div id="scan-count" style="color:var(--muted);font-size:12px;font-family:var(--mono)">0 \u05de\u05d9\u05d9\u05dc\u05d9\u05dd \u05e0\u05e1\u05e8\u05e7\u05d5</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+
+  <div class="dash-header">
+    <div class="dash-title">
+      <div class="logo-icon">\ud83d\udcec</div>
+      <div>
+        <h1>InvoiceBox</h1>
+        <span id="user-email">\u05de\u05d7\u05d5\u05d1\u05e8</span>
+      </div>
+    </div>
+    <div class="dash-actions">
+      <button class="btn-sm btn-ghost" onclick="refreshScan()">\ud83d\udd04 \u05e1\u05e8\u05d5\u05e7 \u05de\u05d7\u05d3\u05e9</button>
+      <button class="btn-sm btn-ghost" onclick="exportCSV()">\ud83d\udce5 \u05d9\u05d9\u05e6\u05d5\u05d0 CSV</button>
+      <button class="btn-sm btn-ghost" onclick="logout()">\ud83d\udeaa \u05d4\u05ea\u05e0\u05ea\u05e7</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid" id="stats-grid">
+    <!-- filled by JS -->
+  </div>
+
+  <!-- MONTH STRIP -->
+  <div class="month-strip" id="month-strip"></div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title"><span>\ud83d\udcc8</span> \u05d4\u05d5\u05e6\u05d0\u05d5\u05ea \u05dc\u05e4\u05d9 \u05d7\u05d5\u05d3\u05e9</div>
+      <canvas id="monthly-chart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><span>\ud83c\udff7\ufe0f</span> \u05dc\u05e4\u05d9 \u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4</div>
+      <canvas id="category-chart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2 -->
+  <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-bottom:24px">
+    <div class="chart-card">
+      <div class="chart-title"><span>\ud83c\udfea</span> \u05e1\u05e4\u05e7\u05d9\u05dd \u05de\u05d5\u05d1\u05d9\u05dc\u05d9\u05dd</div>
+      <div class="vendor-bar" id="vendor-bars"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><span>\ud83d\udcca</span> \u05de\u05d2\u05de\u05ea \u05d4\u05d5\u05e6\u05d0\u05d5\u05ea</div>
+      <canvas id="trend-chart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-header">
+      <div class="chart-title" style="margin:0"><span>\ud83e\uddfe</span> \u05db\u05dc \u05d4\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+      <div class="filters-row" style="margin:0">
+        <input type="text" class="filter-input" id="search-input" placeholder="\ud83d\udd0d \u05d7\u05e4\u05e9..." onkeyup="filterTable()" style="width:180px">
+        <select class="filter-input" id="category-filter" onchange="filterTable()">
+          <option value="">\u05db\u05dc \u05d4\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d5\u05ea</option>
+        </select>
+        <select class="filter-input" id="sort-select" onchange="filterTable()">
+          <option value="date-desc">\u05ea\u05d0\u05e8\u05d9\u05da \u2193</option>
+          <option value="date-asc">\u05ea\u05d0\u05e8\u05d9\u05da \u2191</option>
+          <option value="amount-desc">\u05e1\u05db\u05d5\u05dd \u2193</option>
+          <option value="amount-asc">\u05e1\u05db\u05d5\u05dd \u2191</option>
+          <option value="sender">\u05e9\u05d5\u05dc\u05d7</option>
+        </select>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('sender')">\u05e9\u05d5\u05dc\u05d7 \u25be</th>
+            <th onclick="sortBy('subject')">\u05e0\u05d5\u05e9\u05d0 \u25be</th>
+            <th onclick="sortBy('amount')">\u05e1\u05db\u05d5\u05dd \u25be</th>
+            <th onclick="sortBy('category')">\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4 \u25be</th>
+            <th onclick="sortBy('date')">\u05ea\u05d0\u05e8\u05d9\u05da \u25be</th>
+            <th>\u05e4\u05e2\u05d5\u05dc\u05d5\u05ea</th>
+          </tr>
+        </thead>
+        <tbody id="invoice-tbody"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span id="page-info">\u05de\u05e6\u05d9\u05d2 1-20 \u05de\u05ea\u05d5\u05da 0</span>
+      <div class="page-btns" id="page-btns"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ========================
+// CONFIG
+// ========================
+const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest';
+
+// Invoice detection patterns
+const INVOICE_KEYWORDS = [
+  'invoice', 'receipt', '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea', '\u05e7\u05d1\u05dc\u05d4', 'order confirmation', 'your order',
+  'payment confirmation', '\u05d4\u05d6\u05de\u05e0\u05d4', '\u05d0\u05d9\u05e9\u05d5\u05e8 \u05ea\u05e9\u05dc\u05d5\u05dd', 'payment receipt',
+  'billing', '\u05d7\u05d9\u05d5\u05d1', '\u05ea\u05e9\u05dc\u05d5\u05dd', 'subscription', '\u05de\u05e0\u05d5\u05d9', 'purchase',
+  'transaction', '\u05e2\u05e1\u05e7\u05d4', 'paid', '\u05e9\u05d5\u05dc\u05dd', 'thank you for your payment',
+  '\u05ea\u05d5\u05d3\u05d4 \u05e2\u05dc \u05e8\u05db\u05d9\u05e9\u05ea\u05da', 'order #', '\u05d4\u05d6\u05de\u05e0\u05d4 \u05de\u05e1\u05e4\u05e8', '\u05de\u05e1\u05e4\u05e8 \u05d4\u05d6\u05de\u05e0\u05d4',
+  'bill', '\u05d7\u05e9\u05d1\u05d5\u05df', 'statement'
+];
+
+// Category mapping
+const CATEGORIES = {
+  '\u05d0\u05de\u05d6\u05d5\u05df|amazon': { name: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
+  'aliexpress|ebay': { name: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
+  'netflix|spotify|apple|google play|youtube': { name: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
+  'wolt|10bis|deliveroo|uber eats': { name: '\u05d0\u05d5\u05db\u05dc \u05d5\u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd', icon: '\ud83c\udf55', color: '#ef4444' },
+  'cellcom|hot|partner|bezeq|yes|012': { name: '\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea', icon: '\ud83d\udce1', color: '#00d4ff' },
+  'electric|electricity|\u05d7\u05e9\u05de\u05dc|\u05de\u05d9\u05dd|\u05d0\u05e8\u05e0\u05d5\u05e0\u05d4': { name: '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d5\u05ea \u05d1\u05d9\u05ea', icon: '\ud83c\udfe0', color: '#10b981' },
+  'flights|booking|airbnb|hotel|\u05d8\u05d9\u05e1\u05d5\u05ea': { name: '\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea', icon: '\u2708\ufe0f', color: '#06b6d4' },
+  'pharmacy|super pharm|\u05d1\u05d9\u05ea \u05de\u05e8\u05e7\u05d7\u05ea': { name: '\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea', icon: '\ud83d\udc8a', color: '#84cc16' },
+  'microsoft|adobe|dropbox|zoom': { name: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
+  'insurance|\u05d1\u05d9\u05d8\u05d5\u05d7': { name: '\u05d1\u05d9\u05d8\u05d5\u05d7', icon: '\ud83d\udee1\ufe0f', color: '#f97316' },
+  'bank|\u05d1\u05e0\u05e7|visa|mastercard': { name: '\u05d1\u05e0\u05e7\u05d0\u05d5\u05ea', icon: '\ud83c\udfe6', color: '#eab308' },
+  'fuel|\u05d3\u05dc\u05e7|sonol|paz|delek': { name: '\u05d3\u05dc\u05e7 \u05d5\u05e8\u05db\u05d1', icon: '\u26fd', color: '#78716c' },
+};
+
+// Amount extraction patterns  
+const AMOUNT_PATTERNS = [
+  /\u20aa\s*([\d,]+(?:\.\d{1,2})?)/g,
+  /ILS\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /\$\s*([\d,]+(?:\.\d{1,2})?)/g,
+  /\u20ac\s*([\d,]+(?:\.\d{1,2})?)/g,
+  /([\d,]+(?:\.\d{1,2})?)\s*\u20aa/g,
+  /([\d,]+(?:\.\d{1,2})?)\s*ILS/gi,
+  /total[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /\u05e1\u05d4"\u05db[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /\u05e1\u05db\u05d5\u05dd[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /amount[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+];
+
+// App state
+let invoices = [];
+let filteredInvoices = [];
+let currentPage = 1;
+const PAGE_SIZE = 20;
+let monthlyChart, categoryChart, trendChart;
+let activeMonth = null;
+let gapiLoaded = false;
+
+// ========================
+// GOOGLE API
+// ========================
+function loadGAPI() {
+  return new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'https://apis.google.com/js/api.js';
+    s.onload = () => {
+      gapi.load('client', resolve);
+    };
+    document.head.appendChild(s);
+  });
+}
+
+function loadGIS() {
+  return new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.onload = resolve;
+    document.head.appendChild(s);
+  });
+}
+
+async function startAuth() {
+  const clientId = document.getElementById('client-id-input').value.trim();
+  if (!clientId) {
+    showToast('error', '\u274c \u05d4\u05d6\u05df Client ID \u05ea\u05d7\u05d9\u05dc\u05d4');
+    return;
+  }
+
+  showScreen('loading');
+  setStatus('\u05d8\u05d5\u05e2\u05df Google API...');
+
+  try {
+    await loadGAPI();
+    await loadGIS();
+
+    await gapi.client.init({
+      discoveryDocs: [DISCOVERY_DOC],
+    });
+
+    const tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: SCOPES,
+      callback: async (response) => {
+        if (response.error) {
+          showScreen('auth');
+          showToast('error', '\u274c \u05e9\u05d2\u05d9\u05d0\u05ea \u05d0\u05d9\u05de\u05d5\u05ea: ' + response.error);
+          return;
+        }
+        await scanEmails();
+      }
+    });
+
+    tokenClient.requestAccessToken();
+
+  } catch (e) {
+    showScreen('auth');
+    showToast('error', '\u274c \u05e9\u05d2\u05d9\u05d0\u05d4: ' + e.message);
+  }
+}
+
+async function scanEmails() {
+  setStatus('\u05de\u05d7\u05e4\u05e9 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea...');
+  
+  const monthsBack = parseInt(document.getElementById('months-back').value) || 24;
+  const afterDate = new Date();
+  afterDate.setMonth(afterDate.getMonth() - monthsBack);
+  const afterTimestamp = Math.floor(afterDate.getTime() / 1000);
+
+  const queries = [
+    `after:${afterTimestamp} subject:(invoice OR receipt OR \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea OR \u05e7\u05d1\u05dc\u05d4 OR "order confirmation" OR "payment confirmation" OR \u05d0\u05d9\u05e9\u05d5\u05e8 \u05d7\u05d9\u05d5\u05d1 OR billing)`,
+    `after:${afterTimestamp} (invoice OR receipt) has:attachment`,
+    `after:${afterTimestamp} from:(noreply OR billing OR payments OR invoices OR receipts)`,
+  ];
+
+  let allMessageIds = new Set();
+
+  for (const q of queries) {
+    try {
+      let pageToken = null;
+      do {
+        const params = { userId: 'me', q, maxResults: 500 };
+        if (pageToken) params.pageToken = pageToken;
+        const res = await gapi.client.gmail.users.messages.list(params);
+        const msgs = res.result.messages || [];
+        msgs.forEach(m => allMessageIds.add(m.id));
+        pageToken = res.result.nextPageToken;
+        setStatus(`\u05e0\u05de\u05e6\u05d0\u05d5 ${allMessageIds.size} \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea \u05e4\u05d5\u05d8\u05e0\u05e6\u05d9\u05d0\u05dc\u05d9\u05d5\u05ea...`);
+      } while (pageToken && allMessageIds.size < 2000);
+    } catch(e) {}
+  }
+
+  const ids = [...allMessageIds];
+  const total = ids.length;
+  invoices = [];
+
+  setStatus(`\u05e1\u05d5\u05e8\u05e7 ${total} \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea...`);
+
+  // Batch fetch (25 at a time)
+  const BATCH = 25;
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const batch = ids.slice(i, i + BATCH);
+    const promises = batch.map(id =>
+      gapi.client.gmail.users.messages.get({
+        userId: 'me',
+        id,
+        format: 'metadata',
+        metadataHeaders: ['From', 'Subject', 'Date'],
+      }).then(r => r.result).catch(() => null)
+    );
+
+    const results = await Promise.all(promises);
+    results.forEach(msg => {
+      if (!msg) return;
+      const inv = parseMessage(msg);
+      if (inv) invoices.push(inv);
+    });
+
+    const pct = Math.round(((i + BATCH) / total) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('scan-count').textContent = `${Math.min(i + BATCH, total)} / ${total} \u05de\u05d9\u05d9\u05dc\u05d9\u05dd \u05e0\u05e1\u05e8\u05e7\u05d5 | ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05e0\u05de\u05e6\u05d0\u05d5`;
+
+    await new Promise(r => setTimeout(r, 50));
+  }
+
+  // Get user email
+  try {
+    const profile = await gapi.client.gmail.users.getProfile({ userId: 'me' });
+    document.getElementById('user-email').textContent = profile.result.emailAddress;
+  } catch(e) {}
+
+  buildDashboard();
+  showScreen('dashboard');
+  showToast('success', `\u2705 \u05e0\u05de\u05e6\u05d0\u05d5 ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea!`);
+}
+
+function parseMessage(msg) {
+  const headers = {};
+  (msg.payload?.headers || []).forEach(h => { headers[h.name.toLowerCase()] = h.value; });
+
+  const subject = headers['subject'] || '';
+  const from = headers['from'] || '';
+  const dateStr = headers['date'] || '';
+
+  // Check if looks like invoice
+  const combined = (subject + ' ' + from).toLowerCase();
+  const isInvoice = INVOICE_KEYWORDS.some(kw => combined.includes(kw.toLowerCase()));
+  if (!isInvoice) return null;
+
+  // Parse date
+  let date = new Date(dateStr);
+  if (isNaN(date)) date = new Date();
+
+  // Extract sender name
+  const senderMatch = from.match(/^"?([^"<]+)"?\s*</);
+  const senderName = senderMatch ? senderMatch[1].trim() : from.split('@')[0] || from;
+
+  // Extract amount from subject
+  let amount = null;
+  for (const pattern of AMOUNT_PATTERNS) {
+    pattern.lastIndex = 0;
+    const m = pattern.exec(subject);
+    if (m) {
+      const val = parseFloat(m[1].replace(/,/g, ''));
+      if (val > 0 && val < 1000000) { amount = val; break; }
+    }
+  }
+
+  // Categorize
+  const category = categorize(combined);
+
+  return {
+    id: msg.id,
+    sender: senderName,
+    from: from,
+    subject: subject,
+    date: date,
+    amount: amount,
+    category: category.name,
+    categoryIcon: category.icon,
+    categoryColor: category.color,
+  };
+}
+
+function categorize(text) {
+  for (const [pattern, cat] of Object.entries(CATEGORIES)) {
+    const patterns = pattern.split('|');
+    if (patterns.some(p => text.includes(p))) return cat;
+  }
+  return { name: '\u05d0\u05d7\u05e8', icon: '\ud83d\udcc4', color: '#64748b' };
+}
+
+// ========================
+// DEMO
+// ========================
+function loadDemo() {
+  showScreen('loading');
+  setStatus('\u05d8\u05d5\u05e2\u05df \u05e0\u05ea\u05d5\u05e0\u05d9 \u05d3\u05de\u05d5...');
+
+  const vendors = [
+    { name: 'Amazon', cat: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
+    { name: 'Netflix', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
+    { name: 'Spotify', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
+    { name: 'Wolt', cat: '\u05d0\u05d5\u05db\u05dc \u05d5\u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd', icon: '\ud83c\udf55', color: '#ef4444' },
+    { name: 'Partner Mobile', cat: '\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea', icon: '\ud83d\udce1', color: '#00d4ff' },
+    { name: 'Hot', cat: '\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea', icon: '\ud83d\udce1', color: '#00d4ff' },
+    { name: 'Apple', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
+    { name: 'Ali Express', cat: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
+    { name: 'Adobe', cat: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
+    { name: 'Microsoft', cat: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
+    { name: 'Booking.com', cat: '\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea', icon: '\u2708\ufe0f', color: '#06b6d4' },
+    { name: 'Super-Pharm', cat: '\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea', icon: '\ud83d\udc8a', color: '#84cc16' },
+    { name: 'Electric Co.', cat: '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d5\u05ea \u05d1\u05d9\u05ea', icon: '\ud83c\udfe0', color: '#10b981' },
+    { name: 'Google', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
+    { name: 'Dropbox', cat: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
+  ];
+
+  invoices = [];
+  const now = new Date();
+
+  for (let m = 23; m >= 0; m--) {
+    const numInvoices = Math.floor(Math.random() * 20) + 8;
+    for (let i = 0; i < numInvoices; i++) {
+      const v = vendors[Math.floor(Math.random() * vendors.length)];
+      const d = new Date(now.getFullYear(), now.getMonth() - m, Math.floor(Math.random() * 28) + 1);
+      const amount = Math.round((Math.random() * 300 + 10) * 10) / 10;
+      invoices.push({
+        id: `demo-${m}-${i}`,
+        sender: v.name,
+        from: `billing@${v.name.toLowerCase().replace(/\s/g,'')}.com`,
+        subject: `Invoice #${Math.floor(Math.random()*90000+10000)} - \u20aa${amount}`,
+        date: d,
+        amount: amount,
+        category: v.cat,
+        categoryIcon: v.icon,
+        categoryColor: v.color,
+      });
+    }
+  }
+
+  let p = 0;
+  const interval = setInterval(() => {
+    p += 5;
+    document.getElementById('progress-fill').style.width = p + '%';
+    document.getElementById('scan-count').textContent = `${Math.floor(p/100*invoices.length)} / ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05e0\u05e1\u05e8\u05e7\u05d5`;
+    if (p >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        document.getElementById('user-email').textContent = 'demo@gmail.com (\u05d3\u05de\u05d5)';
+        buildDashboard();
+        showScreen('dashboard');
+        showToast('success', `\u2705 \u05d3\u05de\u05d5: ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05d3\u05de\u05d4!`);
+      }, 300);
+    }
+  }, 40);
+}
+
+// ========================
+// DASHBOARD
+// ========================
+function buildDashboard() {
+  invoices.sort((a,b) => b.date - a.date);
+  filteredInvoices = [...invoices];
+
+  buildStats();
+  buildMonthStrip();
+  buildCharts();
+  buildVendorBars();
+  buildTable();
+  buildCategoryFilter();
+}
+
+function buildStats() {
+  const withAmount = invoices.filter(i => i.amount);
+  const totalAmount = withAmount.reduce((s, i) => s + i.amount, 0);
+  const avgAmount = withAmount.length ? totalAmount / withAmount.length : 0;
+  
+  const now = new Date();
+  const thisMonth = invoices.filter(i =>
+    i.date.getMonth() === now.getMonth() && i.date.getFullYear() === now.getFullYear()
+  );
+  const thisMonthAmount = thisMonth.filter(i=>i.amount).reduce((s,i)=>s+i.amount,0);
+
+  const cats = {};
+  invoices.forEach(i => { cats[i.category] = (cats[i.category]||0)+1; });
+  const topCat = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card blue">
+      <div class="stat-label">\u05e1\u05d4"\u05db \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+      <div class="stat-value">${invoices.length}</div>
+      <div class="stat-sub">\u05d1-${getMonthsRange()} \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">\u05e1\u05d4"\u05db \u05d4\u05d5\u05e6\u05d0\u05d5\u05ea</div>
+      <div class="stat-value">\u20aa${formatNum(totalAmount)}</div>
+      <div class="stat-sub">${withAmount.length} \u05e2\u05dd \u05e1\u05db\u05d5\u05dd</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-label">\u05de\u05de\u05d5\u05e6\u05e2 \u05dc\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea</div>
+      <div class="stat-value">\u20aa${formatNum(avgAmount)}</div>
+      <div class="stat-sub">\u05de\u05d1\u05d5\u05e1\u05e1 ${withAmount.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-label">\u05d4\u05d7\u05d5\u05d3\u05e9</div>
+      <div class="stat-value">\u20aa${formatNum(thisMonthAmount)}</div>
+      <div class="stat-sub">${thisMonth.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-label">\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4 \u05de\u05d5\u05d1\u05d9\u05dc\u05d4</div>
+      <div class="stat-value" style="font-size:18px">${topCat ? topCat[0] : '-'}</div>
+      <div class="stat-sub">${topCat ? topCat[1] + ' \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea' : ''}</div>
+    </div>
+  `;
+}
+
+function getMonthsRange() {
+  if (!invoices.length) return 0;
+  const oldest = invoices.reduce((a,b) => a.date < b.date ? a : b);
+  const months = Math.ceil((new Date() - oldest.date) / (30*24*3600*1000));
+  return months;
+}
+
+function buildMonthStrip() {
+  const monthly = {};
+  invoices.forEach(i => {
+    const key = `${i.date.getFullYear()}-${String(i.date.getMonth()+1).padStart(2,'0')}`;
+    if (!monthly[key]) monthly[key] = { count: 0, amount: 0 };
+    monthly[key].count++;
+    if (i.amount) monthly[key].amount += i.amount;
+  });
+
+  const sorted = Object.entries(monthly).sort((a,b) => b[0].localeCompare(a[0]));
+  const strip = document.getElementById('month-strip');
+  strip.innerHTML = `<div class="month-chip active" onclick="filterMonth(null, this)">
+    <span class="chip-month">\u05d4\u05db\u05dc</span>
+    <span class="chip-amount">${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</span>
+  </div>`;
+
+  sorted.forEach(([key, data]) => {
+    const [y, m] = key.split('-');
+    const monthNames = ['\u05d9\u05e0\u05d5','\u05e4\u05d1\u05e8','\u05de\u05e8\u05e5','\u05d0\u05e4\u05e8','\u05de\u05d0\u05d9','\u05d9\u05d5\u05e0\u05d9','\u05d9\u05d5\u05dc\u05d9','\u05d0\u05d5\u05d2','\u05e1\u05e4\u05d8','\u05d0\u05d5\u05e7','\u05e0\u05d5\u05d1','\u05d3\u05e6\u05de'];
+    strip.innerHTML += `
+      <div class="month-chip" onclick="filterMonth('${key}', this)">
+        <span class="chip-month">${monthNames[parseInt(m)-1]} ${y}</span>
+        <span class="chip-amount">\u20aa${formatNum(data.amount)}</span>
+      </div>`;
+  });
+}
+
+function filterMonth(key, el) {
+  document.querySelectorAll('.month-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeMonth = key;
+
+  if (!key) {
+    filteredInvoices = [...invoices];
+  } else {
+    const [y, m] = key.split('-');
+    filteredInvoices = invoices.filter(i =>
+      i.date.getFullYear() === parseInt(y) && (i.date.getMonth()+1) === parseInt(m)
+    );
+  }
+
+  applyFilters();
+}
+
+function buildCharts() {
+  // Monthly data
+  const monthly = {};
+  invoices.forEach(i => {
+    const key = `${i.date.getFullYear()}-${String(i.date.getMonth()+1).padStart(2,'0')}`;
+    if (!monthly[key]) monthly[key] = 0;
+    if (i.amount) monthly[key] += i.amount;
+  });
+
+  const sorted = Object.entries(monthly).sort((a,b) => a[0].localeCompare(b[0]));
+  const monthNames = ['\u05d9\u05e0\u05d5','\u05e4\u05d1\u05e8','\u05de\u05e8\u05e5','\u05d0\u05e4\u05e8','\u05de\u05d0\u05d9','\u05d9\u05d5\u05e0\u05d9','\u05d9\u05d5\u05dc\u05d9','\u05d0\u05d5\u05d2','\u05e1\u05e4\u05d8','\u05d0\u05d5\u05e7','\u05e0\u05d5\u05d1','\u05d3\u05e6\u05de'];
+  const labels = sorted.map(([k]) => {
+    const [y,m] = k.split('-');
+    return `${monthNames[parseInt(m)-1]} ${y.slice(2)}`;
+  });
+  const amounts = sorted.map(([,v]) => Math.round(v));
+
+  const chartDefaults = {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10,
