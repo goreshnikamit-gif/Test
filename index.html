@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InvoiceBox \u2014 \u05e1\u05d5\u05e8\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea Gmail</title>
+<title>InvoiceBox — סורק חשבוניות Gmail</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -225,7 +225,7 @@
     position: relative;
   }
   .scan-animation::before {
-    content: '\ud83d\udce7';
+    content: '📧';
     font-size: 48px;
     position: absolute;
     top: 50%; left: 50%;
@@ -650,50 +650,50 @@
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="logo">
-    <div class="logo-icon">\ud83d\udcec</div>
+    <div class="logo-icon">📬</div>
     <h1>InvoiceBox</h1>
-    <p>\u05e1\u05d5\u05e8\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05d7\u05db\u05dd \u05dc\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc \u05e9\u05dc\u05da</p>
+    <p>סורק חשבוניות חכם לג'ימייל שלך</p>
   </div>
 
   <div class="auth-card">
-    <h2>\ud83d\udd11 \u05d7\u05d9\u05d1\u05d5\u05e8 \u05dc\u05d2\u05d5\u05d2\u05dc</h2>
-    <p>\u05d4\u05d6\u05df \u05d0\u05ea \u05d4-Client ID \u05e9\u05dc\u05da \u05de-Google Cloud Console \u05db\u05d3\u05d9 \u05dc\u05d7\u05d1\u05e8 \u05d0\u05ea \u05d4\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc \u05e9\u05dc\u05da \u05d5\u05dc\u05e1\u05e8\u05d5\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05d8\u05d5\u05de\u05d8\u05d9\u05ea.</p>
+    <h2>🔑 חיבור לגוגל</h2>
+    <p>הזן את ה-Client ID שלך מ-Google Cloud Console כדי לחבר את הג'ימייל שלך ולסרוק חשבוניות אוטומטית.</p>
 
     <div class="setup-field">
       <label>Google OAuth Client ID</label>
       <input type="text" id="client-id-input" placeholder="XXXXXXXXXX-xxxx.apps.googleusercontent.com" />
-      <small>\u05ea\u05de\u05e6\u05d0 \u05d0\u05ea \u05d6\u05d4 \u05d1: console.cloud.google.com \u2192 Credentials \u2192 OAuth 2.0 Client IDs</small>
+      <small>תמצא את זה ב: console.cloud.google.com → Credentials → OAuth 2.0 Client IDs</small>
     </div>
 
     <div class="setup-field">
-      <label>\u05d8\u05d5\u05d5\u05d7 \u05e1\u05e8\u05d9\u05e7\u05d4 (\u05d7\u05d5\u05d3\u05e9\u05d9\u05dd \u05d0\u05d7\u05d5\u05e8\u05d4)</label>
+      <label>טווח סריקה (חודשים אחורה)</label>
       <input type="number" id="months-back" value="24" min="1" max="120" />
-      <small>\u05db\u05de\u05d4 \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd \u05d0\u05d7\u05d5\u05e8\u05d4 \u05dc\u05e1\u05e8\u05d5\u05e7? (\u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc: 24 \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd)</small>
+      <small>כמה חודשים אחורה לסרוק? (ברירת מחדל: 24 חודשים)</small>
     </div>
 
     <button class="btn-primary" onclick="startAuth()">
-      \ud83d\ude80 \u05d4\u05ea\u05d7\u05d1\u05e8 \u05d5\u05e1\u05e8\u05d5\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea
+      🚀 התחבר וסרוק חשבוניות
     </button>
 
-    <span class="how-link" onclick="toggleHow()">\u2753 \u05d0\u05d9\u05da \u05de\u05e7\u05d1\u05dc\u05d9\u05dd Client ID?</span>
+    <span class="how-link" onclick="toggleHow()">❓ איך מקבלים Client ID?</span>
     <div class="how-box" id="how-box">
       <ol>
-        <li>\u05d4\u05d9\u05db\u05e0\u05e1 \u05dc-<a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> \u05d5\u05e6\u05d5\u05e8 \u05e4\u05e8\u05d5\u05d9\u05e7\u05d8 \u05d7\u05d3\u05e9</li>
-        <li>\u05dc\u05da \u05dc-"APIs & Services" \u2192 "Enable APIs" \u2192 \u05d4\u05e4\u05e2\u05dc \u05d0\u05ea <strong>Gmail API</strong></li>
-        <li>\u05dc\u05da \u05dc-"Credentials" \u2192 "Create Credentials" \u2192 "OAuth 2.0 Client ID"</li>
-        <li>\u05d1\u05d7\u05e8 "Web Application" \u05d5\u05d4\u05d5\u05e1\u05e3 Authorized JS Origins: <code>file://</code> \u05d5-<code>http://localhost</code></li>
-        <li>\u05d4\u05e2\u05ea\u05e7 \u05d0\u05ea \u05d4-Client ID \u05d5\u05d4\u05d3\u05d1\u05e7 \u05dc\u05de\u05e2\u05dc\u05d4</li>
-        <li>\u05dc\u05da \u05dc-"OAuth Consent Screen" \u2192 \u05d4\u05d5\u05e1\u05e3 \u05d0\u05ea \u05d4\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc \u05e9\u05dc\u05da \u05db-Test User</li>
+        <li>היכנס ל-<a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> וצור פרויקט חדש</li>
+        <li>לך ל-"APIs & Services" → "Enable APIs" → הפעל את <strong>Gmail API</strong></li>
+        <li>לך ל-"Credentials" → "Create Credentials" → "OAuth 2.0 Client ID"</li>
+        <li>בחר "Web Application" והוסף Authorized JS Origins: <code>file://</code> ו-<code>http://localhost</code></li>
+        <li>העתק את ה-Client ID והדבק למעלה</li>
+        <li>לך ל-"OAuth Consent Screen" → הוסף את הג'ימייל שלך כ-Test User</li>
       </ol>
     </div>
   </div>
 
   <!-- DEMO MODE -->
   <div class="auth-card" style="max-width:480px">
-    <h2>\ud83c\udfae \u05de\u05e6\u05d1 \u05d3\u05de\u05d5</h2>
-    <p>\u05e8\u05d5\u05e6\u05d4 \u05dc\u05e8\u05d0\u05d5\u05ea \u05d0\u05d9\u05da \u05d6\u05d4 \u05e0\u05e8\u05d0\u05d4 \u05d1\u05dc\u05d9 \u05dc\u05d4\u05ea\u05d7\u05d1\u05e8? \u05dc\u05d7\u05e5 \u05db\u05d0\u05df \u05dc\u05d3\u05de\u05d5 \u05e2\u05dd \u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05de\u05d3\u05d5\u05de\u05d9\u05dd.</p>
+    <h2>🎮 מצב דמו</h2>
+    <p>רוצה לראות איך זה נראה בלי להתחבר? לחץ כאן לדמו עם נתונים מדומים.</p>
     <button class="btn-primary" style="background: linear-gradient(135deg, var(--accent3), #059669);" onclick="loadDemo()">
-      \ud83d\udc41\ufe0f \u05d4\u05e6\u05d2 \u05d3\u05de\u05d5
+      👁️ הצג דמו
     </button>
   </div>
 </div>
@@ -704,12 +704,12 @@
     <div class="scan-ring"></div>
     <div class="scan-ring"></div>
   </div>
-  <h2>\u05e1\u05d5\u05e8\u05e7 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea...</h2>
-  <div id="scan-status">\u05de\u05ea\u05d7\u05d1\u05e8 \u05dc\u05d2'\u05d9\u05de\u05d9\u05d9\u05dc...</div>
+  <h2>סורק חשבוניות...</h2>
+  <div id="scan-status">מתחבר לג'ימייל...</div>
   <div class="progress-bar">
     <div class="progress-fill" id="progress-fill"></div>
   </div>
-  <div id="scan-count" style="color:var(--muted);font-size:12px;font-family:var(--mono)">0 \u05de\u05d9\u05d9\u05dc\u05d9\u05dd \u05e0\u05e1\u05e8\u05e7\u05d5</div>
+  <div id="scan-count" style="color:var(--muted);font-size:12px;font-family:var(--mono)">0 מיילים נסרקו</div>
 </div>
 
 <!-- DASHBOARD -->
@@ -717,16 +717,16 @@
 
   <div class="dash-header">
     <div class="dash-title">
-      <div class="logo-icon">\ud83d\udcec</div>
+      <div class="logo-icon">📬</div>
       <div>
         <h1>InvoiceBox</h1>
-        <span id="user-email">\u05de\u05d7\u05d5\u05d1\u05e8</span>
+        <span id="user-email">מחובר</span>
       </div>
     </div>
     <div class="dash-actions">
-      <button class="btn-sm btn-ghost" onclick="refreshScan()">\ud83d\udd04 \u05e1\u05e8\u05d5\u05e7 \u05de\u05d7\u05d3\u05e9</button>
-      <button class="btn-sm btn-ghost" onclick="exportCSV()">\ud83d\udce5 \u05d9\u05d9\u05e6\u05d5\u05d0 CSV</button>
-      <button class="btn-sm btn-ghost" onclick="logout()">\ud83d\udeaa \u05d4\u05ea\u05e0\u05ea\u05e7</button>
+      <button class="btn-sm btn-ghost" onclick="refreshScan()">🔄 סרוק מחדש</button>
+      <button class="btn-sm btn-ghost" onclick="exportCSV()">📥 ייצוא CSV</button>
+      <button class="btn-sm btn-ghost" onclick="logout()">🚪 התנתק</button>
     </div>
   </div>
 
@@ -741,11 +741,11 @@
   <!-- CHARTS -->
   <div class="charts-grid">
     <div class="chart-card">
-      <div class="chart-title"><span>\ud83d\udcc8</span> \u05d4\u05d5\u05e6\u05d0\u05d5\u05ea \u05dc\u05e4\u05d9 \u05d7\u05d5\u05d3\u05e9</div>
+      <div class="chart-title"><span>📈</span> הוצאות לפי חודש</div>
       <canvas id="monthly-chart" height="200"></canvas>
     </div>
     <div class="chart-card">
-      <div class="chart-title"><span>\ud83c\udff7\ufe0f</span> \u05dc\u05e4\u05d9 \u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4</div>
+      <div class="chart-title"><span>🏷️</span> לפי קטגוריה</div>
       <canvas id="category-chart" height="200"></canvas>
     </div>
   </div>
@@ -753,11 +753,11 @@
   <!-- CHARTS ROW 2 -->
   <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-bottom:24px">
     <div class="chart-card">
-      <div class="chart-title"><span>\ud83c\udfea</span> \u05e1\u05e4\u05e7\u05d9\u05dd \u05de\u05d5\u05d1\u05d9\u05dc\u05d9\u05dd</div>
+      <div class="chart-title"><span>🏪</span> ספקים מובילים</div>
       <div class="vendor-bar" id="vendor-bars"></div>
     </div>
     <div class="chart-card">
-      <div class="chart-title"><span>\ud83d\udcca</span> \u05de\u05d2\u05de\u05ea \u05d4\u05d5\u05e6\u05d0\u05d5\u05ea</div>
+      <div class="chart-title"><span>📊</span> מגמת הוצאות</div>
       <canvas id="trend-chart" height="200"></canvas>
     </div>
   </div>
@@ -765,18 +765,18 @@
   <!-- TABLE -->
   <div class="table-card">
     <div class="table-header">
-      <div class="chart-title" style="margin:0"><span>\ud83e\uddfe</span> \u05db\u05dc \u05d4\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+      <div class="chart-title" style="margin:0"><span>🧾</span> כל החשבוניות</div>
       <div class="filters-row" style="margin:0">
-        <input type="text" class="filter-input" id="search-input" placeholder="\ud83d\udd0d \u05d7\u05e4\u05e9..." onkeyup="filterTable()" style="width:180px">
+        <input type="text" class="filter-input" id="search-input" placeholder="🔍 חפש..." onkeyup="filterTable()" style="width:180px">
         <select class="filter-input" id="category-filter" onchange="filterTable()">
-          <option value="">\u05db\u05dc \u05d4\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d5\u05ea</option>
+          <option value="">כל הקטגוריות</option>
         </select>
         <select class="filter-input" id="sort-select" onchange="filterTable()">
-          <option value="date-desc">\u05ea\u05d0\u05e8\u05d9\u05da \u2193</option>
-          <option value="date-asc">\u05ea\u05d0\u05e8\u05d9\u05da \u2191</option>
-          <option value="amount-desc">\u05e1\u05db\u05d5\u05dd \u2193</option>
-          <option value="amount-asc">\u05e1\u05db\u05d5\u05dd \u2191</option>
-          <option value="sender">\u05e9\u05d5\u05dc\u05d7</option>
+          <option value="date-desc">תאריך ↓</option>
+          <option value="date-asc">תאריך ↑</option>
+          <option value="amount-desc">סכום ↓</option>
+          <option value="amount-asc">סכום ↑</option>
+          <option value="sender">שולח</option>
         </select>
       </div>
     </div>
@@ -784,19 +784,19 @@
       <table>
         <thead>
           <tr>
-            <th onclick="sortBy('sender')">\u05e9\u05d5\u05dc\u05d7 \u25be</th>
-            <th onclick="sortBy('subject')">\u05e0\u05d5\u05e9\u05d0 \u25be</th>
-            <th onclick="sortBy('amount')">\u05e1\u05db\u05d5\u05dd \u25be</th>
-            <th onclick="sortBy('category')">\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4 \u25be</th>
-            <th onclick="sortBy('date')">\u05ea\u05d0\u05e8\u05d9\u05da \u25be</th>
-            <th>\u05e4\u05e2\u05d5\u05dc\u05d5\u05ea</th>
+            <th onclick="sortBy('sender')">שולח ▾</th>
+            <th onclick="sortBy('subject')">נושא ▾</th>
+            <th onclick="sortBy('amount')">סכום ▾</th>
+            <th onclick="sortBy('category')">קטגוריה ▾</th>
+            <th onclick="sortBy('date')">תאריך ▾</th>
+            <th>פעולות</th>
           </tr>
         </thead>
         <tbody id="invoice-tbody"></tbody>
       </table>
     </div>
     <div class="pagination">
-      <span id="page-info">\u05de\u05e6\u05d9\u05d2 1-20 \u05de\u05ea\u05d5\u05da 0</span>
+      <span id="page-info">מציג 1-20 מתוך 0</span>
       <div class="page-btns" id="page-btns"></div>
     </div>
   </div>
@@ -815,42 +815,42 @@ const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/gmail/v1/res
 
 // Invoice detection patterns
 const INVOICE_KEYWORDS = [
-  'invoice', 'receipt', '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea', '\u05e7\u05d1\u05dc\u05d4', 'order confirmation', 'your order',
-  'payment confirmation', '\u05d4\u05d6\u05de\u05e0\u05d4', '\u05d0\u05d9\u05e9\u05d5\u05e8 \u05ea\u05e9\u05dc\u05d5\u05dd', 'payment receipt',
-  'billing', '\u05d7\u05d9\u05d5\u05d1', '\u05ea\u05e9\u05dc\u05d5\u05dd', 'subscription', '\u05de\u05e0\u05d5\u05d9', 'purchase',
-  'transaction', '\u05e2\u05e1\u05e7\u05d4', 'paid', '\u05e9\u05d5\u05dc\u05dd', 'thank you for your payment',
-  '\u05ea\u05d5\u05d3\u05d4 \u05e2\u05dc \u05e8\u05db\u05d9\u05e9\u05ea\u05da', 'order #', '\u05d4\u05d6\u05de\u05e0\u05d4 \u05de\u05e1\u05e4\u05e8', '\u05de\u05e1\u05e4\u05e8 \u05d4\u05d6\u05de\u05e0\u05d4',
-  'bill', '\u05d7\u05e9\u05d1\u05d5\u05df', 'statement'
+  'invoice', 'receipt', 'חשבונית', 'קבלה', 'order confirmation', 'your order',
+  'payment confirmation', 'הזמנה', 'אישור תשלום', 'payment receipt',
+  'billing', 'חיוב', 'תשלום', 'subscription', 'מנוי', 'purchase',
+  'transaction', 'עסקה', 'paid', 'שולם', 'thank you for your payment',
+  'תודה על רכישתך', 'order #', 'הזמנה מספר', 'מספר הזמנה',
+  'bill', 'חשבון', 'statement'
 ];
 
 // Category mapping
 const CATEGORIES = {
-  '\u05d0\u05de\u05d6\u05d5\u05df|amazon': { name: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
-  'aliexpress|ebay': { name: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
-  'netflix|spotify|apple|google play|youtube': { name: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
-  'wolt|10bis|deliveroo|uber eats': { name: '\u05d0\u05d5\u05db\u05dc \u05d5\u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd', icon: '\ud83c\udf55', color: '#ef4444' },
-  'cellcom|hot|partner|bezeq|yes|012': { name: '\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea', icon: '\ud83d\udce1', color: '#00d4ff' },
-  'electric|electricity|\u05d7\u05e9\u05de\u05dc|\u05de\u05d9\u05dd|\u05d0\u05e8\u05e0\u05d5\u05e0\u05d4': { name: '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d5\u05ea \u05d1\u05d9\u05ea', icon: '\ud83c\udfe0', color: '#10b981' },
-  'flights|booking|airbnb|hotel|\u05d8\u05d9\u05e1\u05d5\u05ea': { name: '\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea', icon: '\u2708\ufe0f', color: '#06b6d4' },
-  'pharmacy|super pharm|\u05d1\u05d9\u05ea \u05de\u05e8\u05e7\u05d7\u05ea': { name: '\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea', icon: '\ud83d\udc8a', color: '#84cc16' },
-  'microsoft|adobe|dropbox|zoom': { name: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
-  'insurance|\u05d1\u05d9\u05d8\u05d5\u05d7': { name: '\u05d1\u05d9\u05d8\u05d5\u05d7', icon: '\ud83d\udee1\ufe0f', color: '#f97316' },
-  'bank|\u05d1\u05e0\u05e7|visa|mastercard': { name: '\u05d1\u05e0\u05e7\u05d0\u05d5\u05ea', icon: '\ud83c\udfe6', color: '#eab308' },
-  'fuel|\u05d3\u05dc\u05e7|sonol|paz|delek': { name: '\u05d3\u05dc\u05e7 \u05d5\u05e8\u05db\u05d1', icon: '\u26fd', color: '#78716c' },
+  'אמזון|amazon': { name: 'קניות אונליין', icon: '🛒', color: '#f59e0b' },
+  'aliexpress|ebay': { name: 'קניות אונליין', icon: '🛒', color: '#f59e0b' },
+  'netflix|spotify|apple|google play|youtube': { name: 'מנויים דיגיטליים', icon: '📱', color: '#7c3aed' },
+  'wolt|10bis|deliveroo|uber eats': { name: 'אוכל ומשלוחים', icon: '🍕', color: '#ef4444' },
+  'cellcom|hot|partner|bezeq|yes|012': { name: 'תקשורת', icon: '📡', color: '#00d4ff' },
+  'electric|electricity|חשמל|מים|ארנונה': { name: 'חשבונות בית', icon: '🏠', color: '#10b981' },
+  'flights|booking|airbnb|hotel|טיסות': { name: 'נסיעות', icon: '✈️', color: '#06b6d4' },
+  'pharmacy|super pharm|בית מרקחת': { name: 'בריאות', icon: '💊', color: '#84cc16' },
+  'microsoft|adobe|dropbox|zoom': { name: 'תוכנה', icon: '💻', color: '#6366f1' },
+  'insurance|ביטוח': { name: 'ביטוח', icon: '🛡️', color: '#f97316' },
+  'bank|בנק|visa|mastercard': { name: 'בנקאות', icon: '🏦', color: '#eab308' },
+  'fuel|דלק|sonol|paz|delek': { name: 'דלק ורכב', icon: '⛽', color: '#78716c' },
 };
 
 // Amount extraction patterns  
 const AMOUNT_PATTERNS = [
-  /\u20aa\s*([\d,]+(?:\.\d{1,2})?)/g,
+  /₪\s*([\d,]+(?:\.\d{1,2})?)/g,
   /ILS\s*([\d,]+(?:\.\d{1,2})?)/gi,
   /\$\s*([\d,]+(?:\.\d{1,2})?)/g,
-  /\u20ac\s*([\d,]+(?:\.\d{1,2})?)/g,
-  /([\d,]+(?:\.\d{1,2})?)\s*\u20aa/g,
+  /€\s*([\d,]+(?:\.\d{1,2})?)/g,
+  /([\d,]+(?:\.\d{1,2})?)\s*₪/g,
   /([\d,]+(?:\.\d{1,2})?)\s*ILS/gi,
-  /total[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
-  /\u05e1\u05d4"\u05db[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  /\u05e1\u05db\u05d5\u05dd[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
-  /amount[:\s]+[\$\u20aa\u20ac]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /total[:\s]+[\$₪€]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
+  /סה"כ[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /סכום[:\s]+([\d,]+(?:\.\d{1,2})?)/g,
+  /amount[:\s]+[\$₪€]?\s*([\d,]+(?:\.\d{1,2})?)/gi,
 ];
 
 // App state
@@ -888,12 +888,12 @@ function loadGIS() {
 async function startAuth() {
   const clientId = document.getElementById('client-id-input').value.trim();
   if (!clientId) {
-    showToast('error', '\u274c \u05d4\u05d6\u05df Client ID \u05ea\u05d7\u05d9\u05dc\u05d4');
+    showToast('error', '❌ הזן Client ID תחילה');
     return;
   }
 
   showScreen('loading');
-  setStatus('\u05d8\u05d5\u05e2\u05df Google API...');
+  setStatus('טוען Google API...');
 
   try {
     await loadGAPI();
@@ -909,7 +909,7 @@ async function startAuth() {
       callback: async (response) => {
         if (response.error) {
           showScreen('auth');
-          showToast('error', '\u274c \u05e9\u05d2\u05d9\u05d0\u05ea \u05d0\u05d9\u05de\u05d5\u05ea: ' + response.error);
+          showToast('error', '❌ שגיאת אימות: ' + response.error);
           return;
         }
         await scanEmails();
@@ -920,12 +920,12 @@ async function startAuth() {
 
   } catch (e) {
     showScreen('auth');
-    showToast('error', '\u274c \u05e9\u05d2\u05d9\u05d0\u05d4: ' + e.message);
+    showToast('error', '❌ שגיאה: ' + e.message);
   }
 }
 
 async function scanEmails() {
-  setStatus('\u05de\u05d7\u05e4\u05e9 \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea...');
+  setStatus('מחפש חשבוניות...');
   
   const monthsBack = parseInt(document.getElementById('months-back').value) || 24;
   const afterDate = new Date();
@@ -933,7 +933,7 @@ async function scanEmails() {
   const afterTimestamp = Math.floor(afterDate.getTime() / 1000);
 
   const queries = [
-    `after:${afterTimestamp} subject:(invoice OR receipt OR \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea OR \u05e7\u05d1\u05dc\u05d4 OR "order confirmation" OR "payment confirmation" OR \u05d0\u05d9\u05e9\u05d5\u05e8 \u05d7\u05d9\u05d5\u05d1 OR billing)`,
+    `after:${afterTimestamp} subject:(invoice OR receipt OR חשבונית OR קבלה OR "order confirmation" OR "payment confirmation" OR אישור חיוב OR billing)`,
     `after:${afterTimestamp} (invoice OR receipt) has:attachment`,
     `after:${afterTimestamp} from:(noreply OR billing OR payments OR invoices OR receipts)`,
   ];
@@ -950,7 +950,7 @@ async function scanEmails() {
         const msgs = res.result.messages || [];
         msgs.forEach(m => allMessageIds.add(m.id));
         pageToken = res.result.nextPageToken;
-        setStatus(`\u05e0\u05de\u05e6\u05d0\u05d5 ${allMessageIds.size} \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea \u05e4\u05d5\u05d8\u05e0\u05e6\u05d9\u05d0\u05dc\u05d9\u05d5\u05ea...`);
+        setStatus(`נמצאו ${allMessageIds.size} הודעות פוטנציאליות...`);
       } while (pageToken && allMessageIds.size < 2000);
     } catch(e) {}
   }
@@ -959,7 +959,7 @@ async function scanEmails() {
   const total = ids.length;
   invoices = [];
 
-  setStatus(`\u05e1\u05d5\u05e8\u05e7 ${total} \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea...`);
+  setStatus(`סורק ${total} הודעות...`);
 
   // Batch fetch (25 at a time)
   const BATCH = 25;
@@ -983,7 +983,7 @@ async function scanEmails() {
 
     const pct = Math.round(((i + BATCH) / total) * 100);
     document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('scan-count').textContent = `${Math.min(i + BATCH, total)} / ${total} \u05de\u05d9\u05d9\u05dc\u05d9\u05dd \u05e0\u05e1\u05e8\u05e7\u05d5 | ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05e0\u05de\u05e6\u05d0\u05d5`;
+    document.getElementById('scan-count').textContent = `${Math.min(i + BATCH, total)} / ${total} מיילים נסרקו | ${invoices.length} חשבוניות נמצאו`;
 
     await new Promise(r => setTimeout(r, 50));
   }
@@ -996,7 +996,7 @@ async function scanEmails() {
 
   buildDashboard();
   showScreen('dashboard');
-  showToast('success', `\u2705 \u05e0\u05de\u05e6\u05d0\u05d5 ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea!`);
+  showToast('success', `✅ נמצאו ${invoices.length} חשבוניות!`);
 }
 
 function parseMessage(msg) {
@@ -1052,7 +1052,7 @@ function categorize(text) {
     const patterns = pattern.split('|');
     if (patterns.some(p => text.includes(p))) return cat;
   }
-  return { name: '\u05d0\u05d7\u05e8', icon: '\ud83d\udcc4', color: '#64748b' };
+  return { name: 'אחר', icon: '📄', color: '#64748b' };
 }
 
 // ========================
@@ -1060,24 +1060,24 @@ function categorize(text) {
 // ========================
 function loadDemo() {
   showScreen('loading');
-  setStatus('\u05d8\u05d5\u05e2\u05df \u05e0\u05ea\u05d5\u05e0\u05d9 \u05d3\u05de\u05d5...');
+  setStatus('טוען נתוני דמו...');
 
   const vendors = [
-    { name: 'Amazon', cat: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
-    { name: 'Netflix', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
-    { name: 'Spotify', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
-    { name: 'Wolt', cat: '\u05d0\u05d5\u05db\u05dc \u05d5\u05de\u05e9\u05dc\u05d5\u05d7\u05d9\u05dd', icon: '\ud83c\udf55', color: '#ef4444' },
-    { name: 'Partner Mobile', cat: '\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea', icon: '\ud83d\udce1', color: '#00d4ff' },
-    { name: 'Hot', cat: '\u05ea\u05e7\u05e9\u05d5\u05e8\u05ea', icon: '\ud83d\udce1', color: '#00d4ff' },
-    { name: 'Apple', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
-    { name: 'Ali Express', cat: '\u05e7\u05e0\u05d9\u05d5\u05ea \u05d0\u05d5\u05e0\u05dc\u05d9\u05d9\u05df', icon: '\ud83d\uded2', color: '#f59e0b' },
-    { name: 'Adobe', cat: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
-    { name: 'Microsoft', cat: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
-    { name: 'Booking.com', cat: '\u05e0\u05e1\u05d9\u05e2\u05d5\u05ea', icon: '\u2708\ufe0f', color: '#06b6d4' },
-    { name: 'Super-Pharm', cat: '\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea', icon: '\ud83d\udc8a', color: '#84cc16' },
-    { name: 'Electric Co.', cat: '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d5\u05ea \u05d1\u05d9\u05ea', icon: '\ud83c\udfe0', color: '#10b981' },
-    { name: 'Google', cat: '\u05de\u05e0\u05d5\u05d9\u05d9\u05dd \u05d3\u05d9\u05d2\u05d9\u05d8\u05dc\u05d9\u05d9\u05dd', icon: '\ud83d\udcf1', color: '#7c3aed' },
-    { name: 'Dropbox', cat: '\u05ea\u05d5\u05db\u05e0\u05d4', icon: '\ud83d\udcbb', color: '#6366f1' },
+    { name: 'Amazon', cat: 'קניות אונליין', icon: '🛒', color: '#f59e0b' },
+    { name: 'Netflix', cat: 'מנויים דיגיטליים', icon: '📱', color: '#7c3aed' },
+    { name: 'Spotify', cat: 'מנויים דיגיטליים', icon: '📱', color: '#7c3aed' },
+    { name: 'Wolt', cat: 'אוכל ומשלוחים', icon: '🍕', color: '#ef4444' },
+    { name: 'Partner Mobile', cat: 'תקשורת', icon: '📡', color: '#00d4ff' },
+    { name: 'Hot', cat: 'תקשורת', icon: '📡', color: '#00d4ff' },
+    { name: 'Apple', cat: 'מנויים דיגיטליים', icon: '📱', color: '#7c3aed' },
+    { name: 'Ali Express', cat: 'קניות אונליין', icon: '🛒', color: '#f59e0b' },
+    { name: 'Adobe', cat: 'תוכנה', icon: '💻', color: '#6366f1' },
+    { name: 'Microsoft', cat: 'תוכנה', icon: '💻', color: '#6366f1' },
+    { name: 'Booking.com', cat: 'נסיעות', icon: '✈️', color: '#06b6d4' },
+    { name: 'Super-Pharm', cat: 'בריאות', icon: '💊', color: '#84cc16' },
+    { name: 'Electric Co.', cat: 'חשבונות בית', icon: '🏠', color: '#10b981' },
+    { name: 'Google', cat: 'מנויים דיגיטליים', icon: '📱', color: '#7c3aed' },
+    { name: 'Dropbox', cat: 'תוכנה', icon: '💻', color: '#6366f1' },
   ];
 
   invoices = [];
@@ -1093,7 +1093,7 @@ function loadDemo() {
         id: `demo-${m}-${i}`,
         sender: v.name,
         from: `billing@${v.name.toLowerCase().replace(/\s/g,'')}.com`,
-        subject: `Invoice #${Math.floor(Math.random()*90000+10000)} - \u20aa${amount}`,
+        subject: `Invoice #${Math.floor(Math.random()*90000+10000)} - ₪${amount}`,
         date: d,
         amount: amount,
         category: v.cat,
@@ -1107,14 +1107,14 @@ function loadDemo() {
   const interval = setInterval(() => {
     p += 5;
     document.getElementById('progress-fill').style.width = p + '%';
-    document.getElementById('scan-count').textContent = `${Math.floor(p/100*invoices.length)} / ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05e0\u05e1\u05e8\u05e7\u05d5`;
+    document.getElementById('scan-count').textContent = `${Math.floor(p/100*invoices.length)} / ${invoices.length} חשבוניות נסרקו`;
     if (p >= 100) {
       clearInterval(interval);
       setTimeout(() => {
-        document.getElementById('user-email').textContent = 'demo@gmail.com (\u05d3\u05de\u05d5)';
+        document.getElementById('user-email').textContent = 'demo@gmail.com (דמו)';
         buildDashboard();
         showScreen('dashboard');
-        showToast('success', `\u2705 \u05d3\u05de\u05d5: ${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea \u05d3\u05de\u05d4!`);
+        showToast('success', `✅ דמו: ${invoices.length} חשבוניות דמה!`);
       }, 300);
     }
   }, 40);
@@ -1152,29 +1152,29 @@ function buildStats() {
 
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-card blue">
-      <div class="stat-label">\u05e1\u05d4"\u05db \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+      <div class="stat-label">סה"כ חשבוניות</div>
       <div class="stat-value">${invoices.length}</div>
-      <div class="stat-sub">\u05d1-${getMonthsRange()} \u05d7\u05d5\u05d3\u05e9\u05d9\u05dd</div>
+      <div class="stat-sub">ב-${getMonthsRange()} חודשים</div>
     </div>
     <div class="stat-card green">
-      <div class="stat-label">\u05e1\u05d4"\u05db \u05d4\u05d5\u05e6\u05d0\u05d5\u05ea</div>
-      <div class="stat-value">\u20aa${formatNum(totalAmount)}</div>
-      <div class="stat-sub">${withAmount.length} \u05e2\u05dd \u05e1\u05db\u05d5\u05dd</div>
+      <div class="stat-label">סה"כ הוצאות</div>
+      <div class="stat-value">₪${formatNum(totalAmount)}</div>
+      <div class="stat-sub">${withAmount.length} עם סכום</div>
     </div>
     <div class="stat-card yellow">
-      <div class="stat-label">\u05de\u05de\u05d5\u05e6\u05e2 \u05dc\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea</div>
-      <div class="stat-value">\u20aa${formatNum(avgAmount)}</div>
-      <div class="stat-sub">\u05de\u05d1\u05d5\u05e1\u05e1 ${withAmount.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+      <div class="stat-label">ממוצע לחשבונית</div>
+      <div class="stat-value">₪${formatNum(avgAmount)}</div>
+      <div class="stat-sub">מבוסס ${withAmount.length} חשבוניות</div>
     </div>
     <div class="stat-card purple">
-      <div class="stat-label">\u05d4\u05d7\u05d5\u05d3\u05e9</div>
-      <div class="stat-value">\u20aa${formatNum(thisMonthAmount)}</div>
-      <div class="stat-sub">${thisMonth.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</div>
+      <div class="stat-label">החודש</div>
+      <div class="stat-value">₪${formatNum(thisMonthAmount)}</div>
+      <div class="stat-sub">${thisMonth.length} חשבוניות</div>
     </div>
     <div class="stat-card red">
-      <div class="stat-label">\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4 \u05de\u05d5\u05d1\u05d9\u05dc\u05d4</div>
+      <div class="stat-label">קטגוריה מובילה</div>
       <div class="stat-value" style="font-size:18px">${topCat ? topCat[0] : '-'}</div>
-      <div class="stat-sub">${topCat ? topCat[1] + ' \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea' : ''}</div>
+      <div class="stat-sub">${topCat ? topCat[1] + ' חשבוניות' : ''}</div>
     </div>
   `;
 }
@@ -1198,17 +1198,17 @@ function buildMonthStrip() {
   const sorted = Object.entries(monthly).sort((a,b) => b[0].localeCompare(a[0]));
   const strip = document.getElementById('month-strip');
   strip.innerHTML = `<div class="month-chip active" onclick="filterMonth(null, this)">
-    <span class="chip-month">\u05d4\u05db\u05dc</span>
-    <span class="chip-amount">${invoices.length} \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea</span>
+    <span class="chip-month">הכל</span>
+    <span class="chip-amount">${invoices.length} חשבוניות</span>
   </div>`;
 
   sorted.forEach(([key, data]) => {
     const [y, m] = key.split('-');
-    const monthNames = ['\u05d9\u05e0\u05d5','\u05e4\u05d1\u05e8','\u05de\u05e8\u05e5','\u05d0\u05e4\u05e8','\u05de\u05d0\u05d9','\u05d9\u05d5\u05e0\u05d9','\u05d9\u05d5\u05dc\u05d9','\u05d0\u05d5\u05d2','\u05e1\u05e4\u05d8','\u05d0\u05d5\u05e7','\u05e0\u05d5\u05d1','\u05d3\u05e6\u05de'];
+    const monthNames = ['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
     strip.innerHTML += `
       <div class="month-chip" onclick="filterMonth('${key}', this)">
         <span class="chip-month">${monthNames[parseInt(m)-1]} ${y}</span>
-        <span class="chip-amount">\u20aa${formatNum(data.amount)}</span>
+        <span class="chip-amount">₪${formatNum(data.amount)}</span>
       </div>`;
   });
 }
@@ -1240,7 +1240,7 @@ function buildCharts() {
   });
 
   const sorted = Object.entries(monthly).sort((a,b) => a[0].localeCompare(b[0]));
-  const monthNames = ['\u05d9\u05e0\u05d5','\u05e4\u05d1\u05e8','\u05de\u05e8\u05e5','\u05d0\u05e4\u05e8','\u05de\u05d0\u05d9','\u05d9\u05d5\u05e0\u05d9','\u05d9\u05d5\u05dc\u05d9','\u05d0\u05d5\u05d2','\u05e1\u05e4\u05d8','\u05d0\u05d5\u05e7','\u05e0\u05d5\u05d1','\u05d3\u05e6\u05de'];
+  const monthNames = ['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];
   const labels = sorted.map(([k]) => {
     const [y,m] = k.split('-');
     return `${monthNames[parseInt(m)-1]} ${y.slice(2)}`;
@@ -1251,4 +1251,311 @@ function buildCharts() {
     responsive: true,
     plugins: { legend: { display: false } },
     scales: {
-      x: { grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10,
+      x: { grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10, family: "'Rubik'" } } },
+      y: { grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10, family: "'Rubik'" }, callback: v => '₪'+formatNum(v) } },
+    }
+  };
+
+  if (monthlyChart) monthlyChart.destroy();
+  monthlyChart = new Chart(document.getElementById('monthly-chart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: amounts,
+        backgroundColor: amounts.map((_,i) => `rgba(0,212,255,${0.3+0.7*(i/amounts.length)})`),
+        borderColor: 'rgba(0,212,255,0.8)',
+        borderWidth: 1,
+        borderRadius: 6,
+      }]
+    },
+    options: chartDefaults,
+  });
+
+  // Category donut
+  const catTotals = {};
+  invoices.forEach(i => {
+    if (i.amount) {
+      catTotals[i.category] = (catTotals[i.category]||0) + i.amount;
+    }
+  });
+  const catColors = {
+    'קניות אונליין':'#f59e0b','מנויים דיגיטליים':'#7c3aed','אוכל ומשלוחים':'#ef4444',
+    'תקשורת':'#00d4ff','חשבונות בית':'#10b981','נסיעות':'#06b6d4','בריאות':'#84cc16',
+    'תוכנה':'#6366f1','ביטוח':'#f97316','בנקאות':'#eab308','דלק ורכב':'#78716c','אחר':'#64748b'
+  };
+  const catEntries = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+
+  if (categoryChart) categoryChart.destroy();
+  categoryChart = new Chart(document.getElementById('category-chart'), {
+    type: 'doughnut',
+    data: {
+      labels: catEntries.map(([k])=>k),
+      datasets: [{
+        data: catEntries.map(([,v])=>Math.round(v)),
+        backgroundColor: catEntries.map(([k])=>catColors[k]||'#64748b'),
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', font: { size: 11, family: "'Rubik'" }, padding: 10, boxWidth: 12 }
+        },
+        tooltip: {
+          callbacks: { label: (c) => ` ₪${formatNum(c.raw)}` }
+        }
+      }
+    }
+  });
+
+  // Trend chart
+  const ma3 = amounts.map((v,i) => {
+    const window = amounts.slice(Math.max(0,i-2), i+1);
+    return Math.round(window.reduce((a,b)=>a+b,0)/window.length);
+  });
+
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('trend-chart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'הוצאות',
+          data: amounts,
+          borderColor: 'rgba(0,212,255,0.5)',
+          backgroundColor: 'rgba(0,212,255,0.05)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3,
+          pointBackgroundColor: '#00d4ff',
+        },
+        {
+          label: 'ממוצע נע',
+          data: ma3,
+          borderColor: 'rgba(124,58,237,0.8)',
+          backgroundColor: 'transparent',
+          borderDash: [4,4],
+          tension: 0.4,
+          pointRadius: 0,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { labels: { color: '#94a3b8', font: { size: 11, family: "'Rubik'" } } }
+      },
+      scales: {
+        x: { grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10 } } },
+        y: { grid: { color: '#1e2d45' }, ticks: { color: '#64748b', font: { size: 10 }, callback: v => '₪'+formatNum(v) } },
+      }
+    }
+  });
+}
+
+function buildVendorBars() {
+  const vendors = {};
+  invoices.forEach(i => {
+    if (i.amount) vendors[i.sender] = (vendors[i.sender]||0) + i.amount;
+  });
+
+  const top = Object.entries(vendors).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const max = top[0]?.[1] || 1;
+  const colors = ['#00d4ff','#7c3aed','#10b981','#f59e0b','#ef4444','#6366f1','#84cc16','#f97316'];
+
+  document.getElementById('vendor-bars').innerHTML = top.map(([name, amount], i) => `
+    <div class="vendor-row">
+      <div class="vendor-info">
+        <span class="vendor-name">${name}</span>
+        <span class="vendor-amount">₪${formatNum(amount)}</span>
+      </div>
+      <div class="vendor-track">
+        <div class="vendor-fill" style="width:${(amount/max*100).toFixed(1)}%;background:${colors[i%colors.length]}"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function buildCategoryFilter() {
+  const cats = [...new Set(invoices.map(i=>i.category))].sort();
+  const sel = document.getElementById('category-filter');
+  sel.innerHTML = '<option value="">כל הקטגוריות</option>' +
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function buildTable() {
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page = filteredInvoices.slice(start, start+PAGE_SIZE);
+
+  const colors = ['#00d4ff','#7c3aed','#10b981','#f59e0b','#ef4444','#6366f1','#f97316','#84cc16'];
+  const avatarColor = (name) => colors[name.charCodeAt(0) % colors.length];
+
+  document.getElementById('invoice-tbody').innerHTML = page.map(inv => `
+    <tr>
+      <td>
+        <div class="td-sender">
+          <div class="avatar" style="background:${avatarColor(inv.sender)}22;color:${avatarColor(inv.sender)}">
+            ${inv.categoryIcon || inv.sender[0].toUpperCase()}
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:13px">${esc(inv.sender)}</div>
+            <div style="color:var(--muted);font-size:11px">${esc(inv.from.replace(/<.*>/,'').trim()).substring(0,40)}</div>
+          </div>
+        </div>
+      </td>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis">${esc(inv.subject).substring(0,60)}${inv.subject.length>60?'...':''}</td>
+      <td class="amount-cell" style="color:${inv.amount ? 'var(--accent3)' : 'var(--muted)'}">
+        ${inv.amount ? '₪'+formatNum(inv.amount) : '—'}
+      </td>
+      <td>
+        <span class="badge" style="background:${inv.categoryColor}22;color:${inv.categoryColor}">
+          ${inv.categoryIcon} ${inv.category}
+        </span>
+      </td>
+      <td style="color:var(--muted)">${formatDate(inv.date)}</td>
+      <td>
+        <button class="btn-sm btn-ghost" style="padding:6px 10px;font-size:11px"
+          onclick="openEmail('${inv.id}')">📧 פתח</button>
+      </td>
+    </tr>
+  `).join('');
+
+  // Pagination
+  document.getElementById('page-info').textContent =
+    `מציג ${start+1}-${Math.min(start+PAGE_SIZE, filteredInvoices.length)} מתוך ${filteredInvoices.length}`;
+
+  const totalPages = Math.ceil(filteredInvoices.length/PAGE_SIZE);
+  let pagesHTML = '';
+  const showPages = [];
+  for (let p = Math.max(1,currentPage-2); p <= Math.min(totalPages,currentPage+2); p++) showPages.push(p);
+  if (!showPages.includes(1)) { pagesHTML += `<button class="page-btn" onclick="goPage(1)">1</button>`; if (showPages[0]>2) pagesHTML += `<span style="color:var(--muted);padding:0 4px">...</span>`; }
+  showPages.forEach(p => {
+    pagesHTML += `<button class="page-btn${p===currentPage?' active':''}" onclick="goPage(${p})">${p}</button>`;
+  });
+  if (!showPages.includes(totalPages) && totalPages > 1) { if (showPages[showPages.length-1]<totalPages-1) pagesHTML += `<span style="color:var(--muted);padding:0 4px">...</span>`; pagesHTML += `<button class="page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`; }
+  document.getElementById('page-btns').innerHTML = pagesHTML;
+}
+
+function goPage(p) { currentPage = p; buildTable(); window.scrollTo(0,0); }
+
+function filterTable() {
+  applyFilters();
+}
+
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const cat = document.getElementById('category-filter').value;
+  const sort = document.getElementById('sort-select').value;
+
+  let base = activeMonth
+    ? invoices.filter(i => {
+        const [y,m] = activeMonth.split('-');
+        return i.date.getFullYear()===parseInt(y) && (i.date.getMonth()+1)===parseInt(m);
+      })
+    : [...invoices];
+
+  filteredInvoices = base.filter(i => {
+    const matchSearch = !search ||
+      i.sender.toLowerCase().includes(search) ||
+      i.subject.toLowerCase().includes(search) ||
+      i.category.toLowerCase().includes(search);
+    const matchCat = !cat || i.category === cat;
+    return matchSearch && matchCat;
+  });
+
+  filteredInvoices.sort((a,b) => {
+    if (sort==='date-desc') return b.date-a.date;
+    if (sort==='date-asc') return a.date-b.date;
+    if (sort==='amount-desc') return (b.amount||0)-(a.amount||0);
+    if (sort==='amount-asc') return (a.amount||0)-(b.amount||0);
+    if (sort==='sender') return a.sender.localeCompare(b.sender);
+    return 0;
+  });
+
+  currentPage = 1;
+  buildTable();
+}
+
+function sortBy(field) {
+  const sel = document.getElementById('sort-select');
+  if (field==='date') sel.value = sel.value==='date-desc'?'date-asc':'date-desc';
+  else if (field==='amount') sel.value = sel.value==='amount-desc'?'amount-asc':'amount-desc';
+  else if (field==='sender') sel.value = 'sender';
+  filterTable();
+}
+
+function openEmail(id) {
+  window.open(`https://mail.google.com/mail/u/0/#inbox/${id}`, '_blank');
+}
+
+function exportCSV() {
+  const rows = [['שולח','נושא','סכום','קטגוריה','תאריך']];
+  filteredInvoices.forEach(i => {
+    rows.push([i.sender, i.subject, i.amount||'', i.category, formatDate(i.date)]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([''+csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `invoices_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast('success', '📥 CSV יוצא בהצלחה!');
+}
+
+function refreshScan() {
+  invoices = [];
+  showScreen('loading');
+  document.getElementById('progress-fill').style.width = '0%';
+  scanEmails();
+}
+
+function logout() {
+  invoices = [];
+  showScreen('auth');
+}
+
+// ========================
+// HELPERS
+// ========================
+function showScreen(name) {
+  document.getElementById('auth-screen').classList.toggle('hidden', name!=='auth');
+  document.getElementById('loading-screen').classList.toggle('hidden', name!=='loading');
+  document.getElementById('dashboard').classList.toggle('hidden', name!=='dashboard');
+}
+
+function setStatus(msg) {
+  document.getElementById('scan-status').textContent = msg;
+}
+
+function formatNum(n) {
+  if (!n && n!==0) return '0';
+  return Math.round(n).toLocaleString('he-IL');
+}
+
+function formatDate(d) {
+  if (!d || isNaN(d)) return '';
+  return d.toLocaleDateString('he-IL', { day:'2-digit', month:'2-digit', year:'2-digit' });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(type, msg) {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+function toggleHow() {
+  document.getElementById('how-box').classList.toggle('open');
+}
+</script>
+</body>
+</html>
