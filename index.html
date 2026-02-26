@@ -537,69 +537,40 @@ let aiProcessed=0, aiTotal=0;
 // AUTH
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 function loadJS(src){
-  return new Promise((resolve,reject)=>{
-    if(src.includes('api.js')&&typeof gapi!=='undefined'){resolve();return;}
-    if(src.includes('gsi')&&typeof google!=='undefined'&&google?.accounts){resolve();return;}
-    // Check if script tag already exists
-    if(document.querySelector('script[src="'+src+'"]')){
-      // Wait a bit for it to finish loading
-      setTimeout(resolve,500);
-      return;
-    }
+  return new Promise((res,rej)=>{
+    if(src.includes('api.js')&&typeof gapi!=='undefined'){res();return;}
+    if(src.includes('gsi')&&typeof google!=='undefined'&&google?.accounts){res();return;}
     const s=document.createElement('script');
-    s.src=src;
-    s.async=true;
-    s.onload=()=>{console.log('[loadJS] loaded:',src);resolve();};
-    s.onerror=(e)=>{console.error('[loadJS] error:',src,e);reject(new Error('\u05e0\u05db\u05e9\u05dc \u05dc\u05d8\u05e2\u05d5\u05df: '+src));};
+    s.src=src;s.async=true;
+    s.onload=()=>res();
+    s.onerror=()=>rej(new Error('\u05e0\u05db\u05e9\u05dc \u05dc\u05d8\u05e2\u05d5\u05df '+src));
     document.head.appendChild(s);
   });
 }
 
 async function startAuth(){
   showScr('loading');
-  const dbg=(msg)=>{console.log('[Auth]',msg);setStatus(msg);};
+  setStatus('\u05d8\u05d5\u05e2\u05df...');
   try{
-    dbg('\u05d8\u05d5\u05e2\u05df gapi...');
     await loadJS('https://apis.google.com/js/api.js');
-    dbg('gapi \u05e0\u05d8\u05e2\u05df: '+(typeof gapi));
-    if(typeof gapi==='undefined') throw new Error('gapi \u05dc\u05d0 \u05e0\u05d8\u05e2\u05df - \u05d1\u05d3\u05d5\u05e7 \u05d7\u05d9\u05d1\u05d5\u05e8 \u05d0\u05d9\u05e0\u05d8\u05e8\u05e0\u05d8');
-
-    dbg('\u05d8\u05d5\u05e2\u05df gapi.client...');
-    await new Promise((res,rej)=>{
-      gapi.load('client',{callback:()=>{dbg('gapi.client OK');res();},onerror:(e)=>rej(new Error('gapi.load \u05e0\u05db\u05e9\u05dc: '+JSON.stringify(e)))});
-    });
-
-    dbg('\u05d8\u05d5\u05e2\u05df GSI...');
+    await new Promise(r=>gapi.load('client',r));
     await loadJS('https://accounts.google.com/gsi/client');
-    dbg('google: '+(typeof google)+', accounts: '+(typeof google?.accounts));
-    if(typeof google==='undefined'||!google.accounts) throw new Error('GSI \u05dc\u05d0 \u05e0\u05d8\u05e2\u05df');
-
-    dbg('\u05d0\u05ea\u05d7\u05d5\u05dc \u05d2\u05de\u05d9\u05d9\u05dc API...');
     await gapi.client.init({discoveryDocs:[DISC]});
-    dbg('\u05d2\u05de\u05d9\u05d9\u05dc API \u05de\u05d5\u05db\u05df');
-
-    dbg('\u05e4\u05d5\u05ea\u05d7 \u05d7\u05dc\u05d5\u05df \u05d4\u05ea\u05d7\u05d1\u05e8\u05d5\u05ea Google...');
     const tc=google.accounts.oauth2.initTokenClient({
       client_id:CID,scope:SCOPES,
       callback:async r=>{
-        console.log('[Auth] callback:',r);
         if(r.error){
           showScr('auth');
-          // Show specific error message on screen
-          const errMsg = r.error==='popup_blocked_by_browser'?'\u05d7\u05dc\u05d5\u05df \u05e0\u05d7\u05e1\u05dd - \u05d0\u05e4\u05e9\u05e8 \u05d7\u05dc\u05d5\u05e0\u05d5\u05ea \u05d1\u05d3\u05e4\u05d3\u05e4\u05df':
-                          r.error==='access_denied'?'\u05d2\u05d9\u05e9\u05d4 \u05e0\u05d3\u05d7\u05ea\u05d4 - \u05d5\u05d3\u05d0 \u05e9\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05e9\u05dc\u05da \u05d1\u05e8\u05e9\u05d9\u05de\u05ea \u05d4\u05d1\u05d5\u05d3\u05e7\u05d9\u05dd':
-                          r.error;
-          toast('error','\u274c '+errMsg);
+          const msg=r.error==='access_denied'?'\u05d2\u05d9\u05e9\u05d4 \u05e0\u05d3\u05d7\u05ea\u05d4 - \u05d5\u05d3\u05d0 \u05e9\u05d4\u05d7\u05e9\u05d1\u05d5\u05df \u05e9\u05dc\u05da \u05d1\u05e8\u05e9\u05d9\u05de\u05ea \u05d4\u05d1\u05d5\u05d3\u05e7\u05d9\u05dd':r.error;
+          toast('error','\u274c '+msg);
           return;
         }
-        dbg('\u05de\u05d7\u05d5\u05d1\u05e8! \u05de\u05ea\u05d7\u05d9\u05dc \u05e1\u05e8\u05d9\u05e7\u05d4...');
         await scan();
       }
     });
-    tc.requestAccessToken({prompt:'select_account'});
-
+    tc.requestAccessToken();
   }catch(e){
-    console.error('[Auth] ERROR:',e);
+    console.error('Auth error:',e);
     showScr('auth');
     toast('error','\u274c '+e.message);
   }
