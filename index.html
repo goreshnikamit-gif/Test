@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>InvoiceBox Pro</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -227,6 +228,7 @@ td{padding:12px 14px;font-size:13px;vertical-align:middle}
 @keyframes shim{0%,100%{opacity:.4}50%{opacity:1}}
 
 .hidden{display:none!important}
+.pdf-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(255,107,53,.15);color:#ff6b35;border:1px solid rgba(255,107,53,.3)}
 
 /* Confidence bar */
 .conf{display:flex;align-items:center;gap:5px}
@@ -427,22 +429,40 @@ const PAGE = 25;
 // INVOICE DETECTION \u2014 Comprehensive keyword set
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
 const KW = [
-  // English
+  // English \u2014 payment/billing
   'invoice','receipt','order confirmation','your order','payment confirmation',
   'payment receipt','billing statement','billing notice','subscription renewal',
   'subscription invoice','purchase receipt','transaction receipt','order receipt',
   'your purchase','charged','amount due','amount paid','total amount',
   'tax invoice','credit note','debit note','statement of account',
   'payment processed','payment received','order #','order number',
-  'ref #','reference number','thank you for your payment','thank you for your order',
+  'ref #','thank you for your payment','thank you for your order',
   'thank you for purchasing','auto-renew','auto renewal','your subscription',
-  'your plan','plan renewal','account statement',
-  // Hebrew
+  'your plan','plan renewal','account statement','you paid','we charged',
+  'your receipt','payment summary','order summary','booking confirmation',
+  'your booking','your reservation','your ticket','e-ticket',
+  'purchase confirmation','transaction confirmation','charge confirmation',
+  // Food delivery \u2014 English
+  'your order is on its way','order is confirmed','order placed',
+  'your delivery','delivery confirmed',
+  // Hebrew \u2014 general
   '\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea','\u05e7\u05d1\u05dc\u05d4','\u05d0\u05d9\u05e9\u05d5\u05e8 \u05ea\u05e9\u05dc\u05d5\u05dd',
   '\u05d0\u05d9\u05e9\u05d5\u05e8 \u05d7\u05d9\u05d5\u05d1','\u05d4\u05d6\u05de\u05e0\u05d4 \u05de\u05e1\u05e4\u05e8','\u05ea\u05d5\u05d3\u05d4 \u05e2\u05dc \u05e8\u05db\u05d9\u05e9\u05ea\u05da',
   '\u05d7\u05d9\u05d5\u05d1 \u05d7\u05e9\u05d1\u05d5\u05df','\u05de\u05e0\u05d5\u05d9 \u05d7\u05d5\u05d3\u05e9\u05d9','\u05ea\u05e9\u05dc\u05d5\u05dd \u05d1\u05d5\u05e6\u05e2',
   '\u05e1\u05db\u05d5\u05dd \u05dc\u05ea\u05e9\u05dc\u05d5\u05dd','\u05e4\u05d9\u05e8\u05d5\u05d8 \u05e2\u05e1\u05e7\u05d0\u05d5\u05ea','\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea \u05de\u05e1',
-  '\u05d7\u05e9\u05d1\u05d5\u05df \u05e2\u05e1\u05e7\u05d0\u05d5\u05ea'
+  '\u05d7\u05e9\u05d1\u05d5\u05df \u05e2\u05e1\u05e7\u05d0\u05d5\u05ea',
+  // Hebrew \u2014 Wolt / food
+  '\u05d4\u05d6\u05de\u05e0\u05ea\u05da','\u05d4\u05d6\u05de\u05e0\u05ea\u05da \u05d4\u05ea\u05e7\u05d1\u05dc\u05d4','\u05d4\u05d6\u05de\u05e0\u05ea\u05da \u05d0\u05d5\u05e9\u05e8\u05d4',
+  '\u05d4\u05d6\u05de\u05e0\u05ea\u05da \u05d1\u05d3\u05e8\u05da','\u05d4\u05d6\u05de\u05e0\u05ea\u05da \u05d4\u05d2\u05d9\u05e2\u05d4',
+  '\u05e8\u05db\u05d9\u05e9\u05ea\u05da \u05d4\u05d5\u05e9\u05dc\u05de\u05d4',
+  // Hebrew \u2014 telecom / utilities (\u05d1\u05d6\u05e7, \u05d2\u05d9\u05dc\u05ea, HOT, partner)
+  '\u05d7\u05e9\u05d1\u05d5\u05df \u05d7\u05d5\u05d3\u05e9\u05d9','\u05d7\u05e9\u05d1\u05d5\u05df \u05ea\u05e7\u05d5\u05e4\u05ea\u05d9',
+  '\u05d4\u05d5\u05d3\u05e2\u05ea \u05ea\u05e9\u05dc\u05d5\u05dd','\u05d3\u05e8\u05d9\u05e9\u05ea \u05ea\u05e9\u05dc\u05d5\u05dd',
+  '\u05e4\u05d9\u05e8\u05d5\u05d8 \u05d7\u05e9\u05d1\u05d5\u05df','\u05ea\u05e9\u05dc\u05d5\u05dd \u05e0\u05d3\u05e8\u05e9',
+  '\u05d7\u05d9\u05d5\u05d1 \u05d7\u05d5\u05d3\u05e9\u05d9','\u05ea\u05e7\u05d1\u05d5\u05dc','\u05d0\u05d9\u05e9\u05d5\u05e8 \u05d4\u05d6\u05de\u05e0\u05d4',
+  // Hebrew \u2014 general commerce
+  '\u05e8\u05db\u05d9\u05e9\u05d4','\u05d4\u05d6\u05de\u05e0\u05d4','\u05ea\u05e9\u05dc\u05d5\u05dd \u05d4\u05d5\u05e9\u05dc\u05dd',
+  '\u05e4\u05e8\u05d8\u05d9 \u05ea\u05e9\u05dc\u05d5\u05dd','\u05d0\u05d9\u05e9\u05d5\u05e8 \u05e8\u05db\u05d9\u05e9\u05d4',
 ];
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
@@ -544,9 +564,20 @@ async function scan(){
   const after=new Date(); after.setMonth(after.getMonth()-months);
   const ts=Math.floor(after.getTime()/1000);
   const queries=[
-    `after:${ts} subject:(invoice OR receipt OR "\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea" OR "\u05e7\u05d1\u05dc\u05d4" OR "order confirmation" OR "payment confirmation" OR billing OR statement OR subscription)`,
-    `after:${ts} (invoice OR receipt OR billing) has:attachment`,
-    `after:${ts} from:(billing OR payments OR invoices OR receipts OR noreply OR no-reply OR orders OR support)`,
+    // Core billing keywords Hebrew+English
+    `after:${ts} subject:(invoice OR receipt OR billing OR "\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea" OR "\u05e7\u05d1\u05dc\u05d4" OR "\u05d0\u05d9\u05e9\u05d5\u05e8 \u05ea\u05e9\u05dc\u05d5\u05dd" OR "\u05d7\u05e9\u05d1\u05d5\u05df" OR "\u05ea\u05e9\u05dc\u05d5\u05dd" OR "\u05d7\u05d9\u05d5\u05d1" OR "\u05ea\u05e7\u05d1\u05d5\u05dc" OR "\u05d3\u05e8\u05d9\u05e9\u05ea \u05ea\u05e9\u05dc\u05d5\u05dd")`,
+    // Order confirmations + subscriptions
+    `after:${ts} subject:("order confirmation" OR "payment confirmation" OR "order receipt" OR subscription OR "your order" OR "order summary" OR "booking confirmation")`,
+    // Wolt / food delivery Hebrew
+    `after:${ts} subject:("\u05d4\u05d6\u05de\u05e0\u05ea\u05da" OR "\u05d4\u05d6\u05de\u05e0\u05d4" OR "\u05e8\u05db\u05d9\u05e9\u05ea\u05da")`,
+    // From known Israeli billing senders
+    `after:${ts} from:(wolt.com OR 10bis.co.il OR bezeq.co.il OR hot.net.il OR partner.co.il OR cellcom.co.il OR gilat.net OR golan.co.il OR pelephone.co.il OR yes.co.il OR iec.co.il OR ayanot.co.il OR gett.com)`,
+    // From known global billing senders
+    `after:${ts} from:(noreply OR no-reply OR billing OR payments OR invoices OR receipts OR orders OR invoice OR statement OR paypal OR stripe OR amazon OR netflix OR spotify OR apple OR google)`,
+    // Has attachment + billing signal
+    `after:${ts} (invoice OR receipt OR billing OR "\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea") has:attachment`,
+    // Charged / paid keywords
+    `after:${ts} subject:(charged OR "you paid" OR "amount due" OR "amount paid" OR "we charged" OR "\u05d7\u05d5\u05d9\u05d9\u05d1\u05ea" OR "\u05e9\u05d5\u05dc\u05dd")`,
   ];
   let ids=new Set();
   for(const q of queries){
@@ -580,6 +611,15 @@ async function scan(){
   }
 
   try{const p=await gapi.client.gmail.users.getProfile({userId:'me'});document.getElementById('user-email').textContent=p.result.emailAddress;}catch(e){}
+
+  // PDF SCAN PASS
+  const hasPDFs=invoices.filter(inv=>inv.pdfs&&inv.pdfs.length>0);
+  if(hasPDFs.length>0){
+    setStatus('?? \u05e7\u05d5\u05e8\u05d0 PDF\u05d9\u05dd...');
+    document.getElementById('ai-status').textContent='?? \u05e1\u05d5\u05e8\u05e7 '+hasPDFs.length+' PDF\u05d9\u05dd';
+    await pdfScanBatch(hasPDFs);
+    document.getElementById('ai-status').textContent='';
+  }
 
   // AI enrichment pass for invoices without amount
   const needsAI = invoices.filter(inv=>inv.amount===null);
@@ -675,13 +715,25 @@ function parseMsg(msg){
   const [amount, amtSource] = extractAmount(subj, snippet, msg.payload);
 
   const cat=categorize(combined);
+  const pdfs=findPDFAttachments(msg.payload);
   return {
     id:msg.id,sender,from,subject:subj,date,
-    amount, amtSource,
-    snippet,
-    aiConfidence:null,
-    category:cat.n,catIcon:cat.i,catColor:cat.c
+    amount, amtSource, snippet, aiConfidence:null,
+    category:cat.n,catIcon:cat.i,catColor:cat.c,
+    pdfs, pdfText:null, hasPDFInvoice:false, pdfFile:null
   };
+}
+
+function findPDFAttachments(payload){
+  const results=[];
+  function walk(p){
+    if(!p) return;
+    if((p.mimeType==='application/pdf'||p.filename?.toLowerCase().endsWith('.pdf'))&&p.body?.attachmentId)
+      results.push({attachmentId:p.body.attachmentId,filename:p.filename||'doc.pdf',size:p.body.size||0});
+    (p.parts||[]).forEach(walk);
+  }
+  walk(payload);
+  return results;
 }
 
 function extractAmount(subj, snippet, payload){
@@ -1202,7 +1254,13 @@ function buildTable(){
     const amtHTML=inv.amount!==null
       ? `<span class="apos">\u20aa${N(inv.amount)}</span>`
       : `<span class="anone">\u2014</span>`;
-    const srcHTML=inv.amtSource?`<div class="aisrc">${inv.amtSource==='ai'?'\ud83e\udd16 AI':inv.amtSource==='body'?'\ud83d\udcc4 \u05d2\u05d5\u05e3':inv.amtSource==='snippet'?'\ud83d\udcdd \u05e1\u05e0\u05d9\u05e4\u05d8':'\ud83d\udccc \u05e0\u05d5\u05e9\u05d0'}</div>`:'';
+    let srcTxt='';
+    if(inv.amtSource==='pdf') srcTxt='?? PDF';
+    else if(inv.amtSource==='ai') srcTxt='?? AI';
+    else if(inv.amtSource==='body') srcTxt='?? \u05d2\u05d5\u05e3';
+    else if(inv.amtSource==='snippet') srcTxt='?? \u05e1\u05e0\u05d9\u05e4\u05d8';
+    else if(inv.amtSource==='subject') srcTxt='?? \u05e0\u05d5\u05e9\u05d0';
+    const srcHTML=srcTxt?'<div class="aisrc">'+srcTxt+'</div>':'';
     return `<tr>
       <td><div class="tsender">
         <div class="vavt" style="background:${clr}18;color:${clr}">${inv.catIcon||inv.sender[0]}</div>
@@ -1210,7 +1268,7 @@ function buildTable(){
       </div></td>
       <td><div class="subj" title="${E(inv.subject)}">${E(subjS)}</div></td>
       <td class="amtc">${amtHTML}</td>
-      <td>${srcHTML}</td>
+      <td>${srcHTML}${inv.hasPDFInvoice&&inv.amtSource!=='pdf'?'<div class="pdf-tag">?? PDF</div>":''}</td>
       <td><span class="cpill" style="background:${inv.catColor}18;color:${inv.catColor}">${inv.catIcon} ${E(inv.category)}</span></td>
       <td class="datec">${FD(inv.date)}</td>
       <td><button class="obtn" onclick="openEmail('${inv.id}')">&#128231; \u05e4\u05ea\u05d7</button></td>
@@ -1273,6 +1331,99 @@ function toast(type,msg){
   el.className=`toast ${type}`;el.textContent=msg;
   document.getElementById('toasts').appendChild(el);
   setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},4000);
+}
+
+
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+// PDF ENGINE
+// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+function initPDFJS(){
+  try{
+    if(typeof pdfjsLib!=='undefined'){
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+async function fetchAttachment(msgId,attachmentId){
+  try{
+    const r=await gapi.client.gmail.users.messages.attachments.get({userId:'me',messageId:msgId,id:attachmentId});
+    const b64=r.result.data.replace(/-/g,'+').replace(/_/g,'/');
+    const bin=atob(b64);
+    const buf=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) buf[i]=bin.charCodeAt(i);
+    return buf;
+  }catch(e){return null;}
+}
+
+async function extractPDFText(pdfBytes){
+  try{
+    if(!initPDFJS()) return null;
+    const pdf=await pdfjsLib.getDocument({data:pdfBytes}).promise;
+    let text='';
+    const maxPages=Math.min(pdf.numPages,5);
+    for(let p=1;p<=maxPages;p++){
+      const page=await pdf.getPage(p);
+      const cont=await page.getTextContent();
+      text+=cont.items.map(i=>i.str).join(' ')+'\n';
+    }
+    return text.substring(0,8000);
+  }catch(e){return null;}
+}
+
+function isPDFInvoice(text){
+  if(!text) return false;
+  const t=text.toLowerCase();
+  return [
+    'invoice','\u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05ea','receipt','\u05e7\u05d1\u05dc\u05d4',
+    'total','\u05e1\u05d4"\u05db','\u05e1\u05da \u05d4\u05db\u05dc','amount due',
+    '\u05dc\u05ea\u05e9\u05dc\u05d5\u05dd','\u05d7\u05d9\u05d5\u05d1','\u05e4\u05e7\u05d8\u05d5\u05e8\u05d4',
+    '\u05de\u05e2"\u05de','tax invoice','\u05d7\u05e9\u05d1\u05d5\u05df \u05de\u05e1',
+    'payment','charged','\u05ea\u05e9\u05dc\u05d5\u05dd \u05d1\u05d5\u05e6\u05e2'
+  ].some(w=>t.includes(w));
+}
+
+async function processPDF(inv){
+  for(const pdf of (inv.pdfs||[])){
+    try{
+      if(pdf.size>6*1024*1024) continue; // skip >6MB
+      const bytes=await fetchAttachment(inv.id,pdf.attachmentId);
+      if(!bytes) continue;
+      const text=await extractPDFText(bytes);
+      if(!text) continue;
+      inv.pdfText=text;
+      const pdfAmt=searchAmtPatterns(text);
+      if(pdfAmt){
+        // PDF amount wins if: no amount yet, OR PDF gives decimal when we only had integer
+        if(inv.amount===null||(Math.abs(pdfAmt-inv.amount)>0.01&&!Number.isInteger(pdfAmt))){
+          inv.amount=pdfAmt;
+          inv.amtSource='pdf';
+          inv.pdfFile=pdf.filename;
+        }
+      }
+      if(isPDFInvoice(text)){
+        inv.hasPDFInvoice=true;
+        if(!inv.pdfFile) inv.pdfFile=pdf.filename;
+      }
+      break;
+    }catch(e){}
+  }
+}
+
+async function pdfScanBatch(invs){
+  const BATCH=3;
+  for(let i=0;i<invs.length;i+=BATCH){
+    await Promise.all(invs.slice(i,i+BATCH).map(inv=>processPDF(inv)));
+    const done=Math.min(i+BATCH,invs.length);
+    const pdfFound=invs.slice(0,done).filter(v=>v.hasPDFInvoice||v.amtSource==='pdf').length;
+    const el=document.getElementById('ai-status');
+    if(el) el.textContent='\ud83d\udcc4 PDF '+done+'/'+invs.length+' | \u05e0\u05de\u05e6\u05d0\u05d5 '+pdfFound;
+    document.getElementById('scan-count').textContent=
+      invoices.length+' \u05d7\u05e9\u05d1\u05d5\u05e0\u05d9\u05d5\u05ea | PDF: '+done+'/'+invs.length;
+    await new Promise(r=>setTimeout(r,20));
+  }
 }
 
 // \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
